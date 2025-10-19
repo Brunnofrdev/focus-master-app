@@ -1,10 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Target, LayoutDashboard, BookOpen, Brain, BarChart3, Trophy, User } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Target, LayoutDashboard, BookOpen, Brain, BarChart3, Trophy, User, LogOut } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Navigation = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
   
   const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -13,6 +16,11 @@ export const Navigation = () => {
     { href: "/review", icon: Brain, label: "Revisão" },
     { href: "/statistics", icon: BarChart3, label: "Estatísticas" }
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass border-b">
@@ -46,11 +54,16 @@ export const Navigation = () => {
             })}
           </div>
 
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/profile">
-              <User className="h-5 w-5" />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/profile">
+                <User className="h-5 w-5" />
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sair">
+              <LogOut className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}

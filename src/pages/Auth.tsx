@@ -1,45 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/hooks/useAuth";
 import { Target, Mail, Lock, User as UserIcon } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 const Auth = () => {
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
+  const [nomeCompleto, setNomeCompleto] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const { signIn, signUp, user } = useAuth();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    // Simulate login - will be replaced with real auth
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success("Login realizado com sucesso!");
+  useEffect(() => {
+    if (user) {
       navigate("/dashboard");
-    }, 1500);
+    }
+  }, [user, navigate]);
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const { error } = await signIn(loginEmail, loginPassword);
+    setLoading(false);
+    
+    if (!error) {
+      navigate("/dashboard");
+    }
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading(true);
+    const { error } = await signUp(signupEmail, signupPassword, nomeCompleto);
+    setLoading(false);
     
-    // Simulate signup - will be replaced with real auth
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success("Conta criada com sucesso!");
-      navigate("/dashboard");
-    }, 1500);
+    if (!error) {
+      setSignupPassword("");
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 gradient-hero">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">
           <Target className="h-10 w-10 text-white" />
           <span className="text-3xl font-bold text-white">ConcursoMax</span>
@@ -53,7 +63,7 @@ const Auth = () => {
             </TabsList>
 
             <TabsContent value="login">
-              <form onSubmit={handleLogin} className="space-y-4">
+              <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="login-email">Email</Label>
                   <div className="relative">
@@ -63,6 +73,8 @@ const Auth = () => {
                       type="email" 
                       placeholder="seu@email.com"
                       className="pl-10"
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
                       required
                     />
                   </div>
@@ -77,6 +89,8 @@ const Auth = () => {
                       type="password" 
                       placeholder="••••••••"
                       className="pl-10"
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
                       required
                     />
                   </div>
@@ -87,21 +101,15 @@ const Auth = () => {
                   variant="hero" 
                   size="lg" 
                   className="w-full"
-                  disabled={isLoading}
+                  disabled={loading}
                 >
-                  {isLoading ? "Entrando..." : "Entrar"}
+                  {loading ? "Entrando..." : "Entrar"}
                 </Button>
-
-                <div className="text-center">
-                  <Button variant="link" className="text-sm">
-                    Esqueceu sua senha?
-                  </Button>
-                </div>
               </form>
             </TabsContent>
 
             <TabsContent value="signup">
-              <form onSubmit={handleSignup} className="space-y-4">
+              <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signup-name">Nome Completo</Label>
                   <div className="relative">
@@ -111,6 +119,8 @@ const Auth = () => {
                       type="text" 
                       placeholder="Seu nome completo"
                       className="pl-10"
+                      value={nomeCompleto}
+                      onChange={(e) => setNomeCompleto(e.target.value)}
                       required
                     />
                   </div>
@@ -125,6 +135,8 @@ const Auth = () => {
                       type="email" 
                       placeholder="seu@email.com"
                       className="pl-10"
+                      value={signupEmail}
+                      onChange={(e) => setSignupEmail(e.target.value)}
                       required
                     />
                   </div>
@@ -139,6 +151,8 @@ const Auth = () => {
                       type="password" 
                       placeholder="••••••••"
                       className="pl-10"
+                      value={signupPassword}
+                      onChange={(e) => setSignupPassword(e.target.value)}
                       required
                       minLength={6}
                     />
@@ -153,17 +167,10 @@ const Auth = () => {
                   variant="hero" 
                   size="lg" 
                   className="w-full"
-                  disabled={isLoading}
+                  disabled={loading}
                 >
-                  {isLoading ? "Criando conta..." : "Criar Conta"}
+                  {loading ? "Criando conta..." : "Criar Conta"}
                 </Button>
-
-                <p className="text-xs text-center text-muted-foreground">
-                  Ao criar uma conta, você concorda com nossos{" "}
-                  <Button variant="link" className="h-auto p-0 text-xs">
-                    Termos de Uso
-                  </Button>
-                </p>
               </form>
             </TabsContent>
           </Tabs>
