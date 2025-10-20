@@ -11,6 +11,8 @@ import Auth from "./pages/Auth";
 import Planner from "./pages/Planner";
 import Statistics from "./pages/Statistics";
 import Simulados from "./pages/Simulados";
+import SimuladoExec from "./pages/SimuladoExec";
+import SimuladoResultado from "./pages/SimuladoResultado";
 import Review from "./pages/Review";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -31,6 +33,8 @@ const App = () => (
             <Route path="/planner" element={<ProtectedRoute><Planner /></ProtectedRoute>} />
             <Route path="/statistics" element={<ProtectedRoute><Statistics /></ProtectedRoute>} />
             <Route path="/simulados" element={<ProtectedRoute><Simulados /></ProtectedRoute>} />
+            <Route path="/simulados/:id/executar" element={<ProtectedRoute><SimuladoExec /></ProtectedRoute>} />
+            <Route path="/simulados/:id/resultado" element={<ProtectedRoute><SimuladoResultado /></ProtectedRoute>} />
             <Route path="/review" element={<ProtectedRoute><Review /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />

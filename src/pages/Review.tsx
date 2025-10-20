@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Navigation } from "@/components/Navigation";
@@ -9,20 +10,55 @@ import {
   CheckCircle2,
   AlertCircle
 } from "lucide-react";
+import { useRevisao } from "@/hooks/useRevisao";
+import { useNavigate } from "react-router-dom";
 
 const Review = () => {
-  const filaRevisao = [
-    { disciplina: "Português", questoes: 15, proximaRevisao: "Hoje", prioridade: "Alta" },
-    { disciplina: "Dir. Constitucional", questoes: 8, proximaRevisao: "Hoje", prioridade: "Alta" },
-    { disciplina: "Raciocínio Lógico", questoes: 12, proximaRevisao: "Amanhã", prioridade: "Média" },
-    { disciplina: "Informática", questoes: 5, proximaRevisao: "Em 2 dias", prioridade: "Baixa" }
-  ];
+  const navigate = useNavigate();
+  const { listarRevisoesPendentes, contarRevisoesPorDia, loading } = useRevisao();
+  const [revisoes, setRevisoes] = useState<any[]>([]);
+  const [contadores, setContadores] = useState({ hoje: 0, amanha: 0, proximos7dias: 0 });
+
+  useEffect(() => {
+    carregarDados();
+  }, []);
+
+  const carregarDados = async () => {
+    const [revisoesData, contadoresData] = await Promise.all([
+      listarRevisoesPendentes(),
+      contarRevisoesPorDia()
+    ]);
+    setRevisoes(revisoesData);
+    setContadores(contadoresData);
+  };
+
+  // Agrupar por disciplina
+  const revisoesPorDisciplina = revisoes.reduce((acc: any, rev: any) => {
+    const disciplina = rev.questao?.disciplina?.nome || 'Outras';
+    if (!acc[disciplina]) {
+      acc[disciplina] = [];
+    }
+    acc[disciplina].push(rev);
+    return acc;
+  }, {});
+
+  const filaRevisao = Object.entries(revisoesPorDisciplina).map(([disciplina, items]: [string, any]) => {
+    const hoje = new Date().toISOString().split('T')[0];
+    const qtdHoje = items.filter((i: any) => i.proxima_revisao === hoje).length;
+    
+    return {
+      disciplina,
+      questoes: items.length,
+      proximaRevisao: qtdHoje > 0 ? "Hoje" : "Próximos dias",
+      prioridade: qtdHoje > 0 ? "Alta" : "Média"
+    };
+  });
 
   const estatisticas = [
-    { label: "Questões Revisadas", valor: "342", cor: "primary" },
-    { label: "Taxa de Retenção", valor: "87%", cor: "success" },
-    { label: "Streak Atual", valor: "12 dias", cor: "accent" },
-    { label: "Para Revisar Hoje", valor: "23", cor: "warning" }
+    { label: "Para Revisar Hoje", valor: contadores.hoje.toString(), cor: "warning" },
+    { label: "Para Amanhã", valor: contadores.amanha.toString(), cor: "primary" },
+    { label: "Próximos 7 Dias", valor: contadores.proximos7dias.toString(), cor: "accent" },
+    { label: "Total Pendente", valor: revisoes.length.toString(), cor: "success" }
   ];
 
   return (
@@ -48,22 +84,30 @@ const Review = () => {
         </div>
 
         {/* Alerta de Revisão */}
-        <Card className="p-6 mb-8 border-l-4 border-l-warning bg-warning/5">
-          <div className="flex items-start gap-4">
-            <AlertCircle className="h-6 w-6 text-warning flex-shrink-0 mt-1" />
-            <div className="flex-1">
-              <h3 className="font-semibold mb-2">Você tem 23 questões para revisar hoje!</h3>
-              <p className="text-muted-foreground mb-4">
-                A revisão espaçada é mais efetiva quando feita no momento certo. 
-                Não deixe acumular para manter seu desempenho.
-              </p>
-              <Button className="gap-2">
-                <Brain className="h-4 w-4" />
-                Iniciar Revisão Agora
-              </Button>
+        {contadores.hoje > 0 && (
+          <Card className="p-6 mb-8 border-l-4 border-l-warning bg-warning/5">
+            <div className="flex items-start gap-4">
+              <AlertCircle className="h-6 w-6 text-warning flex-shrink-0 mt-1" />
+              <div className="flex-1">
+                <h3 className="font-semibold mb-2">
+                  Você tem {contadores.hoje} questões para revisar hoje!
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  A revisão espaçada é mais efetiva quando feita no momento certo. 
+                  Não deixe acumular para manter seu desempenho.
+                </p>
+                <Button 
+                  className="gap-2"
+                  onClick={() => navigate('/review/praticar')}
+                  disabled={loading}
+                >
+                  <Brain className="h-4 w-4" />
+                  Iniciar Revisão Agora
+                </Button>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        )}
 
         {/* Fila de Revisão */}
         <div className="mb-8">

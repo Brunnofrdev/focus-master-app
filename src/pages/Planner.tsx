@@ -2,13 +2,12 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Navigation } from "@/components/Navigation";
-import { Calendar, Clock, Play, Pause, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, Clock, Play, Pause, Plus, ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { usePomodoro } from "@/hooks/usePomodoro";
 
 const Planner = () => {
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [timerMinutes, setTimerMinutes] = useState(25);
-  const [timerSeconds, setTimerSeconds] = useState(0);
+  const { minutes, seconds, isRunning, sessoes, toggle, reset } = usePomodoro(25);
 
   // Mock calendar data
   const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -45,19 +44,19 @@ const Planner = () => {
             
             <div className="text-center mb-6">
               <div className="text-6xl font-bold mb-4 gradient-primary bg-clip-text text-transparent">
-                {String(timerMinutes).padStart(2, '0')}:{String(timerSeconds).padStart(2, '0')}
+                {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
               </div>
               <p className="text-sm text-muted-foreground">Sessão de Foco</p>
             </div>
 
             <div className="space-y-3">
               <Button 
-                variant={isTimerRunning ? "destructive" : "hero"}
+                variant={isRunning ? "destructive" : "hero"}
                 size="lg" 
                 className="w-full"
-                onClick={() => setIsTimerRunning(!isTimerRunning)}
+                onClick={toggle}
               >
-                {isTimerRunning ? (
+                {isRunning ? (
                   <>
                     <Pause className="mr-2 h-5 w-5" />
                     Pausar
@@ -70,38 +69,51 @@ const Planner = () => {
                 )}
               </Button>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => { setTimerMinutes(25); setTimerSeconds(0); }}
+                  onClick={() => reset(25)}
+                  disabled={isRunning}
                 >
                   25 min
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => { setTimerMinutes(5); setTimerSeconds(0); }}
+                  onClick={() => reset(50)}
+                  disabled={isRunning}
+                >
+                  50 min
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => reset(5)}
+                  disabled={isRunning}
                 >
                   5 min
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => { setTimerMinutes(15); setTimerSeconds(0); }}
+                  onClick={() => reset(25)}
+                  disabled={isRunning}
                 >
-                  15 min
+                  <RotateCcw className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
             <div className="mt-6 pt-6 border-t">
-              <div className="text-sm text-muted-foreground mb-2">Sessões Hoje</div>
+              <div className="text-sm text-muted-foreground mb-2">
+                Sessões Concluídas Hoje: {sessoes}
+              </div>
               <div className="flex gap-1">
                 {[1, 2, 3, 4].map((i) => (
                   <div 
                     key={i} 
-                    className={`h-2 flex-1 rounded ${i <= 2 ? 'bg-success' : 'bg-secondary'}`}
+                    className={`h-2 flex-1 rounded ${i <= sessoes ? 'bg-success' : 'bg-secondary'}`}
                   />
                 ))}
               </div>
