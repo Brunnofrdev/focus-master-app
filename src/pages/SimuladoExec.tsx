@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useSimulados, Questao } from '@/hooks/useSimulados';
-import { Clock, ChevronLeft, ChevronRight, Flag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Flag } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
 import { useToast } from '@/hooks/use-toast';
+import { SimuladoTimer } from '@/components/SimuladoTimer';
 
 const SimuladoExec = () => {
   const { id } = useParams();
@@ -19,22 +20,25 @@ const SimuladoExec = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [respostas, setRespostas] = useState<{ [key: number]: string }>({});
   const [tempoInicio] = useState(Date.now());
-  const [tempoDecorrido, setTempoDecorrido] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [tempoLimite, setTempoLimite] = useState(180);
 
   useEffect(() => {
     carregarSimulado();
-    
-    // Timer
-    const interval = setInterval(() => {
-      setTempoDecorrido(Math.floor((Date.now() - tempoInicio) / 1000));
-    }, 1000);
-
-    return () => clearInterval(interval);
   }, [id]);
 
   const carregarSimulado = async () => {
     try {
+      // Buscar simulado e tempo limite
+      const { data: simulado, error: simuladoError } = await supabase
+        .from('simulados')
+        .select('tempo_limite_minutos')
+        .eq('id', id)
+        .single();
+
+      if (simuladoError) throw simuladoError;
+      setTempoLimite(simulado.tempo_limite_minutos || 180);
+
       const { data, error } = await supabase
         .from('simulado_questoes')
         .select(`
@@ -92,11 +96,13 @@ const SimuladoExec = () => {
     }
   };
 
-  const formatarTempo = (segundos: number) => {
-    const horas = Math.floor(segundos / 3600);
-    const minutos = Math.floor((segundos % 3600) / 60);
-    const segs = segundos % 60;
-    return `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
+  const handleTempoEsgotado = () => {
+    toast({
+      title: 'Tempo esgotado!',
+      description: 'O simulado será finalizado automaticamente.',
+      variant: 'destructive'
+    });
+    handleFinalizar();
   };
 
   if (loading) {
@@ -130,14 +136,14 @@ const SimuladoExec = () => {
       
       <div className="container mx-auto px-4 py-8 pt-24">
         {/* Header com Timer e Progresso */}
-        <Card className="p-6 mb-6 sticky top-20 z-10 bg-card/95 backdrop-blur">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <Clock className="h-5 w-5 text-primary" />
-              <span className="text-2xl font-bold">{formatarTempo(tempoDecorrido)}</span>
-            </div>
-            
-            <div className="flex items-center gap-4">
+        <div className="mb-6 space-y-4 sticky top-20 z-10">
+          <SimuladoTimer 
+            tempoLimiteMinutos={tempoLimite} 
+            onTempoEsgotado={handleTempoEsgotado}
+          />
+          
+          <Card className="p-4 bg-card/95 backdrop-blur">
+            <div className="flex items-center justify-between mb-3">
               <span className="text-sm text-muted-foreground">
                 Questão {currentIndex + 1} de {questoes.length}
               </span>
@@ -150,10 +156,10 @@ const SimuladoExec = () => {
                 Finalizar
               </Button>
             </div>
-          </div>
-          
-          <Progress value={progresso} className="h-2" />
-        </Card>
+            
+            <Progress value={progresso} className="h-2" />
+          </Card>
+        </div>
 
         {/* Questão */}
         <Card className="p-8 mb-6">

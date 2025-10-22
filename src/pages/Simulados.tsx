@@ -11,9 +11,11 @@ import {
 } from "lucide-react";
 import { useSimulados } from "@/hooks/useSimulados";
 import { useNavigate } from "react-router-dom";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
 const Simulados = () => {
   const navigate = useNavigate();
@@ -22,10 +24,22 @@ const Simulados = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [titulo, setTitulo] = useState("");
   const [quantidade, setQuantidade] = useState(30);
+  const [bancaSelecionada, setBancaSelecionada] = useState<string>("");
+  const [bancas, setBancas] = useState<any[]>([]);
 
   useEffect(() => {
     carregarSimulados();
+    carregarBancas();
   }, []);
+
+  const carregarBancas = async () => {
+    const { data } = await supabase
+      .from('bancas')
+      .select('*')
+      .eq('ativo', true)
+      .order('nome');
+    setBancas(data || []);
+  };
 
   const carregarSimulados = async () => {
     const data = await listarSimulados();
@@ -35,11 +49,12 @@ const Simulados = () => {
   const handleCriar = async () => {
     if (!titulo.trim()) return;
     
-    const simulado = await criarSimulado(titulo, quantidade);
+    const simulado = await criarSimulado(titulo, quantidade, bancaSelecionada || undefined);
     if (simulado) {
       setDialogOpen(false);
       setTitulo("");
       setQuantidade(30);
+      setBancaSelecionada("");
       carregarSimulados();
     }
   };
@@ -77,6 +92,9 @@ const Simulados = () => {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Criar Novo Simulado</DialogTitle>
+                <DialogDescription>
+                  Configure seu simulado escolhendo o título, quantidade de questões e banca
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
@@ -98,6 +116,22 @@ const Simulados = () => {
                     value={quantidade}
                     onChange={(e) => setQuantidade(parseInt(e.target.value) || 30)}
                   />
+                </div>
+                <div>
+                  <Label htmlFor="banca">Banca (Opcional)</Label>
+                  <Select value={bancaSelecionada} onValueChange={setBancaSelecionada}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione uma banca" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todas">Todas as Bancas</SelectItem>
+                      {bancas.map((banca) => (
+                        <SelectItem key={banca.id} value={banca.id}>
+                          {banca.sigla} - {banca.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Button 
                   onClick={handleCriar} 

@@ -14,6 +14,7 @@ import Simulados from "./pages/Simulados";
 import SimuladoExec from "./pages/SimuladoExec";
 import SimuladoResultado from "./pages/SimuladoResultado";
 import Review from "./pages/Review";
+import ReviewPraticar from "./pages/ReviewPraticar";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/simulados/:id/executar" element={<ProtectedRoute><SimuladoExec /></ProtectedRoute>} />
             <Route path="/simulados/:id/resultado" element={<ProtectedRoute><SimuladoResultado /></ProtectedRoute>} />
             <Route path="/review" element={<ProtectedRoute><Review /></ProtectedRoute>} />
+            <Route path="/review/praticar" element={<ProtectedRoute><ReviewPraticar /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

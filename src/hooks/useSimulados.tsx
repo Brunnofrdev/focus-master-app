@@ -33,7 +33,7 @@ export const useSimulados = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const criarSimulado = async (titulo: string, quantidadeQuestoes: number) => {
+  const criarSimulado = async (titulo: string, quantidadeQuestoes: number, bancaId?: string) => {
     try {
       setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
@@ -41,11 +41,17 @@ export const useSimulados = () => {
       if (!user) throw new Error('Usuário não autenticado');
 
       // Buscar questões aleatórias
-      const { data: questoes, error: questoesError } = await supabase
+      let query = supabase
         .from('questoes')
         .select('*')
-        .eq('status', 'ativo')
-        .limit(quantidadeQuestoes);
+        .eq('status', 'ativo');
+      
+      // Filtrar por banca se especificada
+      if (bancaId && bancaId !== 'todas') {
+        query = query.eq('banca_id', bancaId);
+      }
+      
+      const { data: questoes, error: questoesError } = await query.limit(quantidadeQuestoes);
 
       if (questoesError) throw questoesError;
       if (!questoes || questoes.length === 0) {
@@ -60,15 +66,23 @@ export const useSimulados = () => {
           titulo,
           total_questoes: questoes.length,
           tempo_limite_minutos: 180,
-          status: 'nao_iniciado'
+          status: 'nao_iniciado',
+          banca_id: bancaId && bancaId !== 'todas' ? bancaId : null
         })
         .select()
         .single();
 
       if (simuladoError) throw simuladoError;
 
+      // Embaralhar questões usando Fisher-Yates
+      const questoesEmbaralhadas = [...questoes];
+      for (let i = questoesEmbaralhadas.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [questoesEmbaralhadas[i], questoesEmbaralhadas[j]] = [questoesEmbaralhadas[j], questoesEmbaralhadas[i]];
+      }
+
       // Adicionar questões ao simulado
-      const simuladoQuestoes = questoes.map((q, index) => ({
+      const simuladoQuestoes = questoesEmbaralhadas.map((q, index) => ({
         simulado_id: simulado.id,
         questao_id: q.id,
         ordem: index + 1
