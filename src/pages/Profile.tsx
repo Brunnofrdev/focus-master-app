@@ -1,8 +1,12 @@
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Navigation } from "@/components/Navigation";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { 
   User, 
   Mail, 
@@ -15,6 +19,70 @@ import {
 } from "lucide-react";
 
 const Profile = () => {
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      carregarPerfil();
+    }
+  }, [user]);
+
+  const carregarPerfil = async () => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user?.id)
+      .single();
+    setProfile(data);
+    setLoading(false);
+  };
+
+  const handleUploadFoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    setUploading(true);
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${user.id}/avatar.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      toast({ title: 'Erro ao enviar foto', variant: 'destructive' });
+      setUploading(false);
+      return;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath);
+
+    await supabase
+      .from('profiles')
+      .update({ foto_url: publicUrl })
+      .eq('id', user.id);
+
+    toast({ title: 'Foto atualizada!' });
+    carregarPerfil();
+    setUploading(false);
+  };
+
+  const handleSalvar = async () => {
+    await supabase
+      .from('profiles')
+      .update(profile)
+      .eq('id', user?.id);
+    toast({ title: 'Perfil atualizado!' });
+  };
+
+  if (loading) return <div>Carregando...</div>;
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Navigation />
@@ -31,21 +99,33 @@ const Profile = () => {
         <Card className="p-6 mb-6">
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-gradient-primary flex items-center justify-center text-white text-3xl font-bold">
-                JD
-              </div>
+              {profile?.foto_url ? (
+                <img src={profile.foto_url} alt="Perfil" className="w-24 h-24 rounded-full object-cover" />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gradient-primary flex items-center justify-center text-white text-3xl font-bold">
+                  {profile?.nome_completo?.charAt(0) || 'U'}
+                </div>
+              )}
+              <input
+                type="file"
+                id="foto-upload"
+                accept="image/*"
+                className="hidden"
+                onChange={handleUploadFoto}
+              />
               <Button 
                 size="icon" 
                 variant="secondary"
                 className="absolute bottom-0 right-0 rounded-full h-8 w-8"
+                onClick={() => document.getElementById('foto-upload')?.click()}
+                disabled={uploading}
               >
                 <Camera className="h-4 w-4" />
               </Button>
             </div>
             <div className="text-center sm:text-left">
-              <h2 className="text-2xl font-bold">João da Silva</h2>
-              <p className="text-muted-foreground">joao.silva@email.com</p>
-              <p className="text-sm text-primary mt-1">Plano Profissional</p>
+              <h2 className="text-2xl font-bold">{profile?.nome_completo || 'Usuário'}</h2>
+              <p className="text-muted-foreground">{user?.email}</p>
             </div>
           </div>
         </Card>
@@ -60,24 +140,36 @@ const Profile = () => {
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="nome">Nome Completo</Label>
-                <Input id="nome" defaultValue="João da Silva" />
+                <Input 
+                  id="nome" 
+                  value={profile?.nome_completo || ''} 
+                  onChange={(e) => setProfile({...profile, nome_completo: e.target.value})}
+                />
               </div>
               <div>
                 <Label htmlFor="cpf">CPF</Label>
-                <Input id="cpf" defaultValue="123.456.789-00" disabled />
+                <Input 
+                  id="cpf" 
+                  value={profile?.cpf || ''} 
+                  onChange={(e) => setProfile({...profile, cpf: e.target.value})}
+                />
               </div>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" defaultValue="joao.silva@email.com" />
+                <Input id="email" type="email" value={user?.email || ''} disabled />
               </div>
               <div>
                 <Label htmlFor="telefone">Telefone</Label>
-                <Input id="telefone" defaultValue="(11) 98765-4321" />
+                <Input 
+                  id="telefone" 
+                  value={profile?.telefone || ''} 
+                  onChange={(e) => setProfile({...profile, telefone: e.target.value})}
+                />
               </div>
             </div>
-            <Button>Salvar Alterações</Button>
+            <Button onClick={handleSalvar}>Salvar Alterações</Button>
           </div>
         </Card>
 
@@ -174,7 +266,11 @@ const Profile = () => {
                 Desconectar de todos os dispositivos
               </p>
             </div>
-            <Button variant="outline" className="gap-2 border-error text-error hover:bg-error hover:text-white">
+            <Button 
+              variant="outline" 
+              className="gap-2 border-error text-error hover:bg-error hover:text-white"
+              onClick={signOut}
+            >
               <LogOut className="h-4 w-4" />
               Sair
             </Button>
