@@ -202,7 +202,7 @@ const Planner = () => {
             </h3>
             
             <div className="text-center mb-6">
-              <div className="text-6xl font-bold mb-4 gradient-primary bg-clip-text text-transparent">
+              <div className="text-6xl font-bold mb-4 text-primary">
                 {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
               </div>
               <p className="text-sm text-muted-foreground">Sessão de Foco</p>
