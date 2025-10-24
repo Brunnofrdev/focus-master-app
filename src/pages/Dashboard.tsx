@@ -95,7 +95,7 @@ const Dashboard = () => {
             </h3>
             <div className="grid sm:grid-cols-2 gap-4">
               <Button variant="outline" size="lg" className="h-auto py-6 flex-col gap-2" asChild>
-                <Link to="/study">
+                <Link to="/planner">
                   <BookOpen className="h-8 w-8 text-primary" />
                   <span className="font-semibold">Iniciar Sessão</span>
                   <span className="text-xs text-muted-foreground">Começar a estudar</span>
@@ -149,7 +149,7 @@ const Dashboard = () => {
               </div>
 
               <Button variant="success" className="w-full" size="lg" asChild>
-                <Link to="/study">
+                <Link to="/planner">
                   Continuar Estudando
                 </Link>
               </Button>
