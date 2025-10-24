@@ -145,6 +145,7 @@ const Review = () => {
                     </div>
                     <Button 
                       variant={item.proximaRevisao === "Hoje" ? "default" : "outline"}
+                      onClick={() => navigate('/review/praticar')}
                     >
                       Revisar
                     </Button>

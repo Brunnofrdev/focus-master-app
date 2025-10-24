@@ -55,7 +55,17 @@ export const useSimulados = () => {
 
       if (questoesError) throw questoesError;
       if (!questoes || questoes.length === 0) {
-        throw new Error('Não há questões disponíveis');
+        throw new Error(bancaId && bancaId !== 'todas' 
+          ? 'Não há questões disponíveis para a banca selecionada' 
+          : 'Não há questões disponíveis no banco de dados');
+      }
+      
+      if (questoes.length < quantidadeQuestoes) {
+        toast({
+          title: 'Aviso',
+          description: `Apenas ${questoes.length} questões disponíveis. Criando simulado com essa quantidade.`,
+          variant: 'default'
+        });
       }
 
       // Criar simulado
