@@ -3,18 +3,17 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Navigation } from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { 
   User, 
-  Mail, 
-  Phone,
   Camera,
   Bell,
   Lock,
-  CreditCard,
   LogOut
 } from "lucide-react";
 
@@ -24,6 +23,14 @@ const Profile = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [senhaDialogOpen, setSenhaDialogOpen] = useState(false);
+  const [novaSenha, setNovaSenha] = useState('');
+  const [confirmarSenha, setConfirmarSenha] = useState('');
+  const [notificacoes, setNotificacoes] = useState({
+    lembretes_estudo: true,
+    revisoes_pendentes: true,
+    relatorios_semanais: false
+  });
 
   useEffect(() => {
     if (user) {
@@ -37,7 +44,14 @@ const Profile = () => {
       .select('*')
       .eq('id', user?.id)
       .single();
-    setProfile(data);
+    
+    if (data) {
+      setProfile(data);
+      // Carregar preferências de notificação se existirem
+      if (data.notificacoes) {
+        setNotificacoes(data.notificacoes);
+      }
+    }
     setLoading(false);
   };
 
@@ -74,11 +88,60 @@ const Profile = () => {
   };
 
   const handleSalvar = async () => {
-    await supabase
+    const { error } = await supabase
       .from('profiles')
       .update(profile)
       .eq('id', user?.id);
-    toast({ title: 'Perfil atualizado!' });
+    
+    if (error) {
+      toast({ title: 'Erro ao salvar perfil', variant: 'destructive' });
+      return;
+    }
+    
+    toast({ title: 'Perfil atualizado com sucesso!' });
+  };
+
+  const handleNotificacaoChange = async (key: string, value: boolean) => {
+    const novasNotificacoes = { ...notificacoes, [key]: value };
+    setNotificacoes(novasNotificacoes);
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ notificacoes: novasNotificacoes })
+      .eq('id', user?.id);
+
+    if (error) {
+      toast({ title: 'Erro ao salvar configuração', variant: 'destructive' });
+      return;
+    }
+
+    toast({ title: 'Configuração salva!' });
+  };
+
+  const handleAlterarSenha = async () => {
+    if (novaSenha !== confirmarSenha) {
+      toast({ title: 'As senhas não coincidem', variant: 'destructive' });
+      return;
+    }
+
+    if (novaSenha.length < 6) {
+      toast({ title: 'A senha deve ter no mínimo 6 caracteres', variant: 'destructive' });
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      password: novaSenha
+    });
+
+    if (error) {
+      toast({ title: 'Erro ao alterar senha', description: error.message, variant: 'destructive' });
+      return;
+    }
+
+    toast({ title: 'Senha alterada com sucesso!' });
+    setSenhaDialogOpen(false);
+    setNovaSenha('');
+    setConfirmarSenha('');
   };
 
   if (loading) return <div>Carregando...</div>;
@@ -179,33 +242,42 @@ const Profile = () => {
             <Bell className="h-5 w-5 text-primary" />
             Notificações
           </h3>
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex-1">
                 <p className="font-medium">Lembretes de Estudo</p>
                 <p className="text-sm text-muted-foreground">
                   Receba lembretes para suas sessões de estudo
                 </p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => toast({ title: 'Configuração salva!' })}>Ativado</Button>
+              <Switch 
+                checked={notificacoes.lembretes_estudo}
+                onCheckedChange={(checked) => handleNotificacaoChange('lembretes_estudo', checked)}
+              />
             </div>
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex-1">
                 <p className="font-medium">Revisões Pendentes</p>
                 <p className="text-sm text-muted-foreground">
                   Alertas quando houver questões para revisar
                 </p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => toast({ title: 'Configuração salva!' })}>Ativado</Button>
+              <Switch 
+                checked={notificacoes.revisoes_pendentes}
+                onCheckedChange={(checked) => handleNotificacaoChange('revisoes_pendentes', checked)}
+              />
             </div>
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex-1">
                 <p className="font-medium">Relatórios Semanais</p>
                 <p className="text-sm text-muted-foreground">
                   Resumo semanal do seu progresso
                 </p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => toast({ title: 'Configuração salva!' })}>Desativado</Button>
+              <Switch 
+                checked={notificacoes.relatorios_semanais}
+                onCheckedChange={(checked) => handleNotificacaoChange('relatorios_semanais', checked)}
+              />
             </div>
           </div>
         </Card>
@@ -218,57 +290,29 @@ const Profile = () => {
           </h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex-1">
                 <p className="font-medium">Alterar Senha</p>
                 <p className="text-sm text-muted-foreground">
-                  Última alteração há 3 meses
+                  Mantenha sua conta segura alterando sua senha regularmente
                 </p>
               </div>
-              <Button variant="outline" onClick={() => toast({ title: 'Em breve!', description: 'Funcionalidade será implementada' })}>Alterar</Button>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Autenticação em Dois Fatores</p>
-                <p className="text-sm text-muted-foreground">
-                  Adicione uma camada extra de segurança
-                </p>
-              </div>
-              <Button variant="outline" onClick={() => toast({ title: 'Em breve!', description: 'Funcionalidade será implementada' })}>Configurar</Button>
-            </div>
-          </div>
-        </Card>
-
-        {/* Assinatura */}
-        <Card className="p-6 mb-6">
-          <h3 className="mb-4 flex items-center gap-2">
-            <CreditCard className="h-5 w-5 text-primary" />
-            Assinatura
-          </h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Plano Profissional</p>
-                <p className="text-sm text-muted-foreground">
-                  R$ 49,90/mês • Próxima cobrança em 15/11/2025
-                </p>
-              </div>
-              <Button variant="outline" onClick={() => toast({ title: 'Em breve!', description: 'Funcionalidade será implementada' })}>Gerenciar</Button>
+              <Button variant="outline" onClick={() => setSenhaDialogOpen(true)}>Alterar</Button>
             </div>
           </div>
         </Card>
 
         {/* Sair */}
-        <Card className="p-6 border-error/50">
+        <Card className="p-6 border-destructive/50">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-error">Sair da Conta</p>
+            <div className="flex-1">
+              <p className="font-medium text-destructive">Sair da Conta</p>
               <p className="text-sm text-muted-foreground">
                 Desconectar de todos os dispositivos
               </p>
             </div>
             <Button 
               variant="outline" 
-              className="gap-2 border-error text-error hover:bg-error hover:text-white"
+              className="gap-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
               onClick={signOut}
             >
               <LogOut className="h-4 w-4" />
@@ -277,6 +321,48 @@ const Profile = () => {
           </div>
         </Card>
       </div>
+
+      {/* Dialog de Alterar Senha */}
+      <Dialog open={senhaDialogOpen} onOpenChange={setSenhaDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Alterar Senha</DialogTitle>
+            <DialogDescription>
+              Digite sua nova senha. Ela deve ter no mínimo 6 caracteres.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="nova-senha">Nova Senha</Label>
+              <Input 
+                id="nova-senha"
+                type="password"
+                value={novaSenha}
+                onChange={(e) => setNovaSenha(e.target.value)}
+                placeholder="Digite sua nova senha"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmar-senha">Confirmar Senha</Label>
+              <Input 
+                id="confirmar-senha"
+                type="password"
+                value={confirmarSenha}
+                onChange={(e) => setConfirmarSenha(e.target.value)}
+                placeholder="Confirme sua nova senha"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSenhaDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleAlterarSenha}>
+              Alterar Senha
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
