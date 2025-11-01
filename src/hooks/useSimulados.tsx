@@ -33,7 +33,7 @@ export const useSimulados = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const criarSimulado = async (titulo: string, quantidadeQuestoes: number, bancaId?: string) => {
+  const criarSimulado = async (titulo: string, quantidadeQuestoes: number, bancaId?: string, disciplinasIds?: string[]) => {
     try {
       setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
@@ -47,23 +47,30 @@ export const useSimulados = () => {
         .eq('status', 'ativo');
       
       // Filtrar por banca se especificada
-      if (bancaId && bancaId !== 'todas') {
+      if (bancaId) {
         query = query.eq('banca_id', bancaId);
       }
       
-      const { data: questoes, error: questoesError } = await query.limit(quantidadeQuestoes);
+      // Filtrar por disciplinas se especificadas
+      if (disciplinasIds && disciplinasIds.length > 0) {
+        query = query.in('disciplina_id', disciplinasIds);
+      }
+      
+      const { data: questoes, error: questoesError } = await query;
 
       if (questoesError) throw questoesError;
       if (!questoes || questoes.length === 0) {
-        throw new Error(bancaId && bancaId !== 'todas' 
-          ? 'Não há questões disponíveis para a banca selecionada' 
-          : 'Não há questões disponíveis no banco de dados');
+        throw new Error('Não há questões disponíveis com os filtros selecionados');
       }
       
-      if (questoes.length < quantidadeQuestoes) {
+      // Embaralhar e limitar quantidade
+      const questoesEmbaralhadas = [...questoes].sort(() => Math.random() - 0.5);
+      const questoesSelecionadas = questoesEmbaralhadas.slice(0, quantidadeQuestoes);
+      
+      if (questoesSelecionadas.length < quantidadeQuestoes) {
         toast({
           title: 'Aviso',
-          description: `Apenas ${questoes.length} questões disponíveis. Criando simulado com essa quantidade.`,
+          description: `Apenas ${questoesSelecionadas.length} questões disponíveis. Criando simulado com essa quantidade.`,
           variant: 'default'
         });
       }
@@ -74,25 +81,18 @@ export const useSimulados = () => {
         .insert({
           user_id: user.id,
           titulo,
-          total_questoes: questoes.length,
+          total_questoes: questoesSelecionadas.length,
           tempo_limite_minutos: 180,
           status: 'nao_iniciado',
-          banca_id: bancaId && bancaId !== 'todas' ? bancaId : null
+          banca_id: bancaId || null
         })
         .select()
         .single();
 
       if (simuladoError) throw simuladoError;
 
-      // Embaralhar questões usando Fisher-Yates
-      const questoesEmbaralhadas = [...questoes];
-      for (let i = questoesEmbaralhadas.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [questoesEmbaralhadas[i], questoesEmbaralhadas[j]] = [questoesEmbaralhadas[j], questoesEmbaralhadas[i]];
-      }
-
       // Adicionar questões ao simulado
-      const simuladoQuestoes = questoesEmbaralhadas.map((q, index) => ({
+      const simuladoQuestoes = questoesSelecionadas.map((q, index) => ({
         simulado_id: simulado.id,
         questao_id: q.id,
         ordem: index + 1
@@ -106,7 +106,7 @@ export const useSimulados = () => {
 
       toast({
         title: 'Simulado criado!',
-        description: `${questoes.length} questões adicionadas.`
+        description: `${questoesSelecionadas.length} questões adicionadas.`
       });
 
       return simulado;

@@ -26,10 +26,13 @@ const Simulados = () => {
   const [quantidade, setQuantidade] = useState(30);
   const [bancaSelecionada, setBancaSelecionada] = useState<string>("");
   const [bancas, setBancas] = useState<any[]>([]);
+  const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<string[]>([]);
+  const [disciplinas, setDisciplinas] = useState<any[]>([]);
 
   useEffect(() => {
     carregarSimulados();
     carregarBancas();
+    carregarDisciplinas();
   }, []);
 
   const carregarBancas = async () => {
@@ -41,6 +44,14 @@ const Simulados = () => {
     setBancas(data || []);
   };
 
+  const carregarDisciplinas = async () => {
+    const { data } = await supabase
+      .from('disciplinas')
+      .select('*')
+      .order('nome');
+    setDisciplinas(data || []);
+  };
+
   const carregarSimulados = async () => {
     const data = await listarSimulados();
     setSimulados(data);
@@ -49,13 +60,18 @@ const Simulados = () => {
   const handleCriar = async () => {
     if (!titulo.trim()) return;
     
-    const bancaId = bancaSelecionada === "todas" || !bancaSelecionada ? undefined : bancaSelecionada;
-    const simulado = await criarSimulado(titulo, quantidade, bancaId);
+    const simulado = await criarSimulado(
+      titulo, 
+      quantidade, 
+      bancaSelecionada || undefined,
+      disciplinasSelecionadas.length > 0 ? disciplinasSelecionadas : undefined
+    );
     if (simulado) {
       setDialogOpen(false);
       setTitulo("");
       setQuantidade(30);
       setBancaSelecionada("");
+      setDisciplinasSelecionadas([]);
       carregarSimulados();
     }
   };
@@ -122,10 +138,9 @@ const Simulados = () => {
                   <Label htmlFor="banca">Banca (Opcional)</Label>
                   <Select value={bancaSelecionada} onValueChange={setBancaSelecionada}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione uma banca" />
+                      <SelectValue placeholder="Todas as bancas" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="todas">Todas as Bancas</SelectItem>
                       {bancas.map((banca) => (
                         <SelectItem key={banca.id} value={banca.id}>
                           {banca.sigla} - {banca.nome}
@@ -133,6 +148,31 @@ const Simulados = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <div>
+                  <Label>Disciplinas (Opcional)</Label>
+                  <div className="border rounded-md p-3 max-h-40 overflow-y-auto space-y-2">
+                    {disciplinas.map((disc) => (
+                      <div key={disc.id} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id={disc.id}
+                          checked={disciplinasSelecionadas.includes(disc.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setDisciplinasSelecionadas([...disciplinasSelecionadas, disc.id]);
+                            } else {
+                              setDisciplinasSelecionadas(disciplinasSelecionadas.filter(id => id !== disc.id));
+                            }
+                          }}
+                          className="rounded"
+                        />
+                        <Label htmlFor={disc.id} className="cursor-pointer font-normal">
+                          {disc.nome}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <Button 
                   onClick={handleCriar} 
