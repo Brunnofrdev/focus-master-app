@@ -36,12 +36,26 @@ const Simulados = () => {
   }, []);
 
   const carregarBancas = async () => {
+    // Buscar apenas bancas que têm questões ativas
     const { data } = await supabase
       .from('bancas')
-      .select('*')
+      .select(`
+        *,
+        questoes!inner(id)
+      `)
       .eq('ativo', true)
+      .eq('questoes.status', 'ativo')
       .order('nome');
-    setBancas(data || []);
+    
+    // Remover duplicatas (uma banca pode ter várias questões)
+    const bancasUnicas = data?.reduce((acc: any[], curr) => {
+      if (!acc.find(b => b.id === curr.id)) {
+        acc.push(curr);
+      }
+      return acc;
+    }, []) || [];
+    
+    setBancas(bancasUnicas);
   };
 
   const carregarDisciplinas = async () => {
