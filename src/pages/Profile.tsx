@@ -187,7 +187,7 @@ const Profile = () => {
                   Receba lembretes para suas sessões de estudo
                 </p>
               </div>
-              <Button variant="outline" size="sm">Ativado</Button>
+              <Button variant="outline" size="sm" onClick={() => toast({ title: 'Configuração salva!' })}>Ativado</Button>
             </div>
             <div className="flex items-center justify-between">
               <div>
@@ -196,7 +196,7 @@ const Profile = () => {
                   Alertas quando houver questões para revisar
                 </p>
               </div>
-              <Button variant="outline" size="sm">Ativado</Button>
+              <Button variant="outline" size="sm" onClick={() => toast({ title: 'Configuração salva!' })}>Ativado</Button>
             </div>
             <div className="flex items-center justify-between">
               <div>
@@ -205,7 +205,7 @@ const Profile = () => {
                   Resumo semanal do seu progresso
                 </p>
               </div>
-              <Button variant="outline" size="sm">Desativado</Button>
+              <Button variant="outline" size="sm" onClick={() => toast({ title: 'Configuração salva!' })}>Desativado</Button>
             </div>
           </div>
         </Card>
@@ -224,7 +224,7 @@ const Profile = () => {
                   Última alteração há 3 meses
                 </p>
               </div>
-              <Button variant="outline">Alterar</Button>
+              <Button variant="outline" onClick={() => toast({ title: 'Em breve!', description: 'Funcionalidade será implementada' })}>Alterar</Button>
             </div>
             <div className="flex items-center justify-between">
               <div>
@@ -233,7 +233,7 @@ const Profile = () => {
                   Adicione uma camada extra de segurança
                 </p>
               </div>
-              <Button variant="outline">Configurar</Button>
+              <Button variant="outline" onClick={() => toast({ title: 'Em breve!', description: 'Funcionalidade será implementada' })}>Configurar</Button>
             </div>
           </div>
         </Card>
@@ -252,7 +252,7 @@ const Profile = () => {
                   R$ 49,90/mês • Próxima cobrança em 15/11/2025
                 </p>
               </div>
-              <Button variant="outline">Gerenciar</Button>
+              <Button variant="outline" onClick={() => toast({ title: 'Em breve!', description: 'Funcionalidade será implementada' })}>Gerenciar</Button>
             </div>
           </div>
         </Card>

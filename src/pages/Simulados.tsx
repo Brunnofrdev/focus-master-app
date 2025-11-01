@@ -49,7 +49,8 @@ const Simulados = () => {
   const handleCriar = async () => {
     if (!titulo.trim()) return;
     
-    const simulado = await criarSimulado(titulo, quantidade, bancaSelecionada || undefined);
+    const bancaId = bancaSelecionada === "todas" || !bancaSelecionada ? undefined : bancaSelecionada;
+    const simulado = await criarSimulado(titulo, quantidade, bancaId);
     if (simulado) {
       setDialogOpen(false);
       setTitulo("");
