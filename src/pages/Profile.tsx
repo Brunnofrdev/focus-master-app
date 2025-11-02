@@ -48,8 +48,9 @@ const Profile = () => {
     if (data) {
       setProfile(data);
       // Carregar preferências de notificação se existirem
-      if (data.notificacoes) {
-        setNotificacoes(data.notificacoes);
+      const profileData = data as any;
+      if (profileData.notificacoes) {
+        setNotificacoes(profileData.notificacoes);
       }
     }
     setLoading(false);
@@ -107,7 +108,7 @@ const Profile = () => {
 
     const { error } = await supabase
       .from('profiles')
-      .update({ notificacoes: novasNotificacoes })
+      .update({ notificacoes: novasNotificacoes } as any)
       .eq('id', user?.id);
 
     if (error) {

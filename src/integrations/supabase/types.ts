@@ -121,6 +121,7 @@ export type Database = {
           id: string
           meta_horas_semanais: number | null
           nome_completo: string
+          notificacoes: Json | null
           telefone: string | null
           updated_at: string | null
         }
@@ -134,6 +135,7 @@ export type Database = {
           id: string
           meta_horas_semanais?: number | null
           nome_completo: string
+          notificacoes?: Json | null
           telefone?: string | null
           updated_at?: string | null
         }
@@ -147,6 +149,7 @@ export type Database = {
           id?: string
           meta_horas_semanais?: number | null
           nome_completo?: string
+          notificacoes?: Json | null
           telefone?: string | null
           updated_at?: string | null
         }
