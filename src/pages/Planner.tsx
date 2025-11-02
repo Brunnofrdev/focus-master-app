@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { sessionSchema } from "@/lib/validations";
 
 const Planner = () => {
   const { minutes, seconds, isRunning, sessoes, toggle, reset } = usePomodoro(25);
@@ -96,6 +97,19 @@ const Planner = () => {
   const handleAdicionarSessao = async () => {
     if (!user || !novaSessao.disciplina_id) {
       toast.error("Selecione uma disciplina");
+      return;
+    }
+
+    // Validação com Zod
+    const validation = sessionSchema.safeParse({
+      duracao_minutos: novaSessao.duracao_minutos,
+      disciplina_id: novaSessao.disciplina_id,
+      notas: novaSessao.notas
+    });
+
+    if (!validation.success) {
+      const firstError = validation.error.issues[0];
+      toast.error(firstError.message);
       return;
     }
 

@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { Target, Mail, Lock, User as UserIcon } from "lucide-react";
 import { Link } from "react-router-dom";
+import { loginSchema, signupSchema } from "@/lib/validations";
+import { toast } from "sonner";
 
 const Auth = () => {
   const [loginEmail, setLoginEmail] = useState("");
@@ -27,6 +29,15 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validação com Zod
+    const validation = loginSchema.safeParse({ email: loginEmail, password: loginPassword });
+    if (!validation.success) {
+      const firstError = validation.error.issues[0];
+      toast.error(firstError.message);
+      return;
+    }
+
     setLoading(true);
     const { error } = await signIn(loginEmail, loginPassword);
     setLoading(false);
@@ -38,12 +49,27 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validação com Zod
+    const validation = signupSchema.safeParse({ 
+      email: signupEmail, 
+      password: signupPassword,
+      nomeCompleto 
+    });
+    
+    if (!validation.success) {
+      const firstError = validation.error.issues[0];
+      toast.error(firstError.message);
+      return;
+    }
+
     setLoading(true);
     const { error } = await signUp(signupEmail, signupPassword, nomeCompleto);
     setLoading(false);
     
     if (!error) {
       setSignupPassword("");
+      toast.success("Conta criada com sucesso!");
     }
   };
 
