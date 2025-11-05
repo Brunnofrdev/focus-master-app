@@ -40,7 +40,7 @@ export const useSimulados = () => {
       
       if (!user) throw new Error('Usuário não autenticado');
 
-      // Buscar questões aleatórias
+      // Buscar questões aleatórias com validação adequada
       let query = supabase
         .from('questoes')
         .select('*')
@@ -58,9 +58,20 @@ export const useSimulados = () => {
       
       const { data: questoes, error: questoesError } = await query;
 
-      if (questoesError) throw questoesError;
+      if (questoesError) {
+        console.error('Erro ao buscar questões:', questoesError);
+        throw new Error('Erro ao buscar questões: ' + questoesError.message);
+      }
+
       if (!questoes || questoes.length === 0) {
-        throw new Error('Não há questões disponíveis com os filtros selecionados');
+        const erroMsg = bancaId && disciplinasIds?.length 
+          ? 'Não há questões disponíveis para a banca e disciplinas selecionadas. Tente remover alguns filtros.'
+          : bancaId 
+          ? 'Não há questões disponíveis para a banca selecionada.'
+          : disciplinasIds?.length
+          ? 'Não há questões disponíveis para as disciplinas selecionadas.'
+          : 'Não há questões disponíveis no sistema.';
+        throw new Error(erroMsg);
       }
       
       // Embaralhar e limitar quantidade
