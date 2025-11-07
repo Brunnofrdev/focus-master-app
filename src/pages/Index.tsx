@@ -1,12 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, BookOpen, BarChart3, Brain, Target, Clock, Trophy } from "lucide-react";
+import { ArrowRight, BookOpen, BarChart3, Brain, Target, Clock, Trophy, Moon, Sun } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTheme } from "@/hooks/useTheme";
 import heroBackground from "@/assets/hero-background.jpg";
 import dashboardIllustration from "@/assets/dashboard-illustration.jpg";
 import plannerIllustration from "@/assets/planner-illustration.jpg";
 
 const Index = () => {
+  const { theme, toggleTheme } = useTheme();
+  
   return (
     <div className="min-h-screen">
       {/* Navigation */}
@@ -16,7 +19,19 @@ const Index = () => {
             <Target className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold text-gradient">ConcursoMax</span>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-2 md:gap-4 items-center">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={toggleTheme}
+              title={theme === "light" ? "Ativar modo escuro" : "Ativar modo claro"}
+            >
+              {theme === "light" ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <Sun className="h-5 w-5" />
+              )}
+            </Button>
             <Button variant="ghost" asChild>
               <Link to="/auth">Login</Link>
             </Button>

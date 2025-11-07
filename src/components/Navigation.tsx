@@ -1,13 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { Target, LayoutDashboard, BookOpen, Brain, BarChart3, Trophy, User, LogOut } from "lucide-react";
+import { Target, LayoutDashboard, BookOpen, Brain, BarChart3, Trophy, User, LogOut, Moon, Sun } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 
 export const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   
   const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -55,6 +57,18 @@ export const Navigation = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleTheme}
+              title={theme === "light" ? "Ativar modo escuro" : "Ativar modo claro"}
+            >
+              {theme === "light" ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <Sun className="h-5 w-5" />
+              )}
+            </Button>
             <Button variant="ghost" size="icon" asChild>
               <Link to="/profile">
                 <User className="h-5 w-5" />

@@ -6,7 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
-import { Target, Mail, Lock, User as UserIcon } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
+import { Target, Mail, Lock, User as UserIcon, Moon, Sun, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { loginSchema, signupSchema } from "@/lib/validations";
 import { toast } from "sonner";
@@ -20,6 +21,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { signIn, signUp, user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     if (user) {
@@ -75,6 +77,22 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 gradient-hero">
+      {/* Theme Toggle Button */}
+      <div className="fixed top-4 right-4 z-50">
+        <Button 
+          variant="glass" 
+          size="icon"
+          onClick={toggleTheme}
+          title={theme === "light" ? "Ativar modo escuro" : "Ativar modo claro"}
+        >
+          {theme === "light" ? (
+            <Moon className="h-5 w-5 text-white" />
+          ) : (
+            <Sun className="h-5 w-5 text-white" />
+          )}
+        </Button>
+      </div>
+      
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">
           <Target className="h-10 w-10 text-white" />
