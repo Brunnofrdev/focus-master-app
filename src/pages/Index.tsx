@@ -227,14 +227,128 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 px-4 border-t">
-        <div className="container mx-auto text-center text-muted-foreground">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Target className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold text-gradient">ConcursoMax</span>
+      {/* FAQ Section */}
+      <section className="py-20 px-4 bg-muted/30">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="mb-4">Perguntas Frequentes</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Tudo que você precisa saber sobre nossa plataforma
+            </p>
           </div>
-          <p>© 2025 ConcursoMax. Todos os direitos reservados.</p>
+          
+          <div className="max-w-3xl mx-auto space-y-4">
+            <Card className="p-6">
+              <h3 className="font-semibold mb-2">Como funciona o período de teste?</h3>
+              <p className="text-muted-foreground">
+                Oferecemos 7 dias de teste gratuito com acesso completo a todas as funcionalidades. 
+                Não é necessário cartão de crédito para começar.
+              </p>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="font-semibold mb-2">Posso cancelar minha assinatura a qualquer momento?</h3>
+              <p className="text-muted-foreground">
+                Sim! Você pode cancelar sua assinatura a qualquer momento através do seu perfil. 
+                Não há multas ou taxas de cancelamento.
+              </p>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="font-semibold mb-2">As questões são atualizadas?</h3>
+              <p className="text-muted-foreground">
+                Sim! Nossa equipe adiciona constantemente novas questões de concursos recentes e 
+                atualiza o conteúdo para refletir as últimas provas das principais bancas.
+              </p>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="font-semibold mb-2">Funciona em dispositivos móveis?</h3>
+              <p className="text-muted-foreground">
+                Perfeitamente! Nossa plataforma é 100% responsiva e funciona em computadores, 
+                tablets e smartphones, permitindo que você estude em qualquer lugar.
+              </p>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="font-semibold mb-2">Como funciona o sistema de revisão?</h3>
+              <p className="text-muted-foreground">
+                Utilizamos o método de repetição espaçada, que programa revisões automáticas baseadas 
+                no seu desempenho, otimizando sua retenção e memorização do conteúdo.
+              </p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-16 px-4 border-t bg-muted/50">
+        <div className="container mx-auto">
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Target className="h-6 w-6 text-primary" />
+                <span className="text-xl font-bold text-gradient">ConcursoMax</span>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Sua aprovação no concurso público começa aqui. Plataforma completa de preparação.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Plataforma</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <Link to="/dashboard" className="hover:text-primary transition-colors">
+                    Dashboard
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/planner" className="hover:text-primary transition-colors">
+                    Planner
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/simulados" className="hover:text-primary transition-colors">
+                    Simulados
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/statistics" className="hover:text-primary transition-colors">
+                    Estatísticas
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <Link to="/terms" className="hover:text-primary transition-colors">
+                    Termos de Uso
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/privacy" className="hover:text-primary transition-colors">
+                    Política de Privacidade
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Contato</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>contato@concursomax.com.br</li>
+                <li>Suporte: suporte@concursomax.com.br</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t text-center text-sm text-muted-foreground">
+            <p>© 2025 ConcursoMax. Todos os direitos reservados.</p>
+          </div>
         </div>
       </footer>
     </div>
