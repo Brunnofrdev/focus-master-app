@@ -196,6 +196,10 @@ export const useSimulados = () => {
 
       if (questoesError) throw questoesError;
 
+      if (!questoes || questoes.length === 0) {
+        throw new Error('Nenhuma questão encontrada no simulado.');
+      }
+
       // Calcular acertos
       let acertos = 0;
       const updates = questoes?.map(q => {
@@ -217,19 +221,15 @@ export const useSimulados = () => {
           status: 'concluido',
           concluido_em: new Date().toISOString(),
           acertos,
-          nota_final: parseFloat(((acertos / (questoes?.length || 1)) * 100).toFixed(2))
+          nota_final: parseFloat(((acertos / questoes.length) * 100).toFixed(2))
         })
         .eq('id', simuladoId);
 
       if (error) throw error;
 
-      toast({
-        title: 'Simulado finalizado!',
-        description: `Você acertou ${acertos} de ${questoes?.length} questões.`
-      });
-
-      return { acertos, total: questoes?.length || 0 };
+      return { acertos, total: questoes.length };
     } catch (error: any) {
+      console.error('Erro ao finalizar simulado:', error);
       toast({
         title: 'Erro ao finalizar simulado',
         description: error.message,

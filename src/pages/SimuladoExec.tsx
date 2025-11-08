@@ -88,21 +88,41 @@ const SimuladoExec = () => {
   };
 
   const handleFinalizar = async () => {
-    if (window.confirm('Deseja realmente finalizar o simulado?')) {
-      const resultado = await finalizarSimulado(id!);
-      if (resultado) {
-        navigate(`/simulados/${id}/resultado`);
+    const respondidas = Object.keys(respostas).length;
+    const total = questoes.length;
+    
+    if (respondidas < total) {
+      const naoRespondidas = total - respondidas;
+      if (!window.confirm(`Você tem ${naoRespondidas} questão(ões) não respondida(s). Deseja realmente finalizar o simulado?`)) {
+        return;
       }
+    } else {
+      if (!window.confirm('Deseja realmente finalizar o simulado?')) {
+        return;
+      }
+    }
+    
+    const resultado = await finalizarSimulado(id!);
+    if (resultado) {
+      toast({
+        title: 'Simulado finalizado!',
+        description: `Você acertou ${resultado.acertos} de ${resultado.total} questões.`
+      });
+      navigate(`/simulados/${id}/resultado`);
     }
   };
 
-  const handleTempoEsgotado = () => {
+  const handleTempoEsgotado = async () => {
     toast({
       title: 'Tempo esgotado!',
       description: 'O simulado será finalizado automaticamente.',
       variant: 'destructive'
     });
-    handleFinalizar();
+    
+    const resultado = await finalizarSimulado(id!);
+    if (resultado) {
+      navigate(`/simulados/${id}/resultado`);
+    }
   };
 
   if (loading) {
@@ -144,9 +164,14 @@ const SimuladoExec = () => {
           
           <Card className="p-4 bg-card/95 backdrop-blur">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm text-muted-foreground">
-                Questão {currentIndex + 1} de {questoes.length}
-              </span>
+              <div>
+                <span className="text-sm text-muted-foreground">
+                  Questão {currentIndex + 1} de {questoes.length}
+                </span>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Respondidas: {Object.keys(respostas).length} / {questoes.length}
+                </div>
+              </div>
               <Button 
                 variant="destructive" 
                 size="sm"
@@ -210,17 +235,18 @@ const SimuladoExec = () => {
             Anterior
           </Button>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 max-w-2xl justify-center">
             {questoes.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
+                title={`Questão ${idx + 1}${respostas[idx] ? ' - Respondida' : ' - Não respondida'}`}
                 className={`w-10 h-10 rounded-lg font-semibold transition-all ${
                   idx === currentIndex
-                    ? 'bg-primary text-white'
+                    ? 'bg-primary text-white shadow-lg scale-110'
                     : respostas[idx]
-                    ? 'bg-success/20 text-success border-2 border-success'
-                    : 'bg-secondary hover:bg-accent'
+                    ? 'bg-success/20 text-success border-2 border-success hover:bg-success/30'
+                    : 'bg-secondary hover:bg-accent border-2 border-border'
                 }`}
               >
                 {idx + 1}
