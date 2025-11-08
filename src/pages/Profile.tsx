@@ -301,9 +301,9 @@ const Profile = () => {
           <div className="flex flex-col lg:flex-row items-center gap-8">
             <div className="relative">
               {profile?.foto_url ? (
-                <img src={profile.foto_url} alt="Perfil" className="w-32 h-32 rounded-full object-cover border-4 border-background shadow-lg" />
+                <img src={profile.foto_url} alt="Perfil" className="w-40 h-40 rounded-full object-cover border-4 border-background shadow-lg" />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-gradient-primary flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+                <div className="w-40 h-40 rounded-full bg-gradient-primary flex items-center justify-center text-white text-5xl font-bold shadow-lg">
                   {profile?.nome_completo?.charAt(0) || 'U'}
                 </div>
               )}
