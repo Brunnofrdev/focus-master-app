@@ -247,10 +247,16 @@ const Statistics = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
           {statsCards.map((stat, index) => {
             const Icon = stat.icon;
+            const colorMap: Record<string, string> = {
+              primary: 'text-primary',
+              success: 'text-success',
+              accent: 'text-accent',
+              destructive: 'text-destructive'
+            };
             return (
               <Card key={index} className="p-4 md:p-6">
                 <div className="flex items-start justify-between mb-4">
-                  <Icon className={`h-6 md:h-8 w-6 md:w-8 text-${stat.color}`} />
+                  <Icon className={`h-6 md:h-8 w-6 md:w-8 ${colorMap[stat.color]}`} />
                 </div>
                 <div className="text-2xl md:text-3xl font-bold mb-1">{stat.value}</div>
                 <div className="text-xs md:text-sm text-muted-foreground">{stat.label}</div>

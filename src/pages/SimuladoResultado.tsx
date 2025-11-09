@@ -3,8 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Trophy, TrendingUp, Target, Clock, ChevronRight } from 'lucide-react';
+import { Trophy, TrendingUp, Target, Clock, ChevronRight, PieChart, BarChart3 } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
+import { Progress } from '@/components/ui/progress';
+import { PieChart as RechartsP, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const SimuladoResultado = () => {
   const { id } = useParams();
@@ -12,6 +14,7 @@ const SimuladoResultado = () => {
   const [resultado, setResultado] = useState<any>(null);
   const [questoes, setQuestoes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [estatisticasDisciplinas, setEstatisticasDisciplinas] = useState<any[]>([]);
 
   useEffect(() => {
     carregarResultado();
@@ -19,7 +22,6 @@ const SimuladoResultado = () => {
 
   const carregarResultado = async () => {
     try {
-      // Buscar simulado
       const { data: simulado, error: simuladoError } = await supabase
         .from('simulados')
         .select('*')
@@ -28,7 +30,6 @@ const SimuladoResultado = () => {
 
       if (simuladoError) throw simuladoError;
 
-      // Buscar questões com respostas
       const { data: questoesData, error: questoesError } = await supabase
         .from('simulado_questoes')
         .select(`
@@ -42,6 +43,7 @@ const SimuladoResultado = () => {
             alternativa_e,
             gabarito,
             explicacao,
+            disciplina_id,
             disciplinas (nome)
           )
         `)
@@ -52,6 +54,27 @@ const SimuladoResultado = () => {
 
       setResultado(simulado);
       setQuestoes(questoesData || []);
+
+      // Calcular estatísticas por disciplina
+      const disciplinasMap = new Map();
+      questoesData?.forEach((q: any) => {
+        const disciplina = q.questoes?.disciplinas?.nome || 'Geral';
+        if (!disciplinasMap.has(disciplina)) {
+          disciplinasMap.set(disciplina, { total: 0, acertos: 0 });
+        }
+        const stats = disciplinasMap.get(disciplina);
+        stats.total++;
+        if (q.correto) stats.acertos++;
+      });
+
+      const estatisticas = Array.from(disciplinasMap.entries()).map(([disciplina, stats]: [string, any]) => ({
+        disciplina,
+        acertos: stats.acertos,
+        erros: stats.total - stats.acertos,
+        percentual: Math.round((stats.acertos / stats.total) * 100)
+      }));
+
+      setEstatisticasDisciplinas(estatisticas);
     } catch (error) {
       console.error('Erro ao carregar resultado:', error);
     } finally {
@@ -84,6 +107,22 @@ const SimuladoResultado = () => {
   const porcentagem = resultado.nota_final || 0;
   const acertos = resultado.acertos || 0;
   const erros = resultado.total_questoes - acertos;
+  
+  // Dados para o gráfico de pizza
+  const dadosPizza = [
+    { name: 'Acertos', value: acertos, color: 'hsl(var(--success))' },
+    { name: 'Erros', value: erros, color: 'hsl(var(--destructive))' },
+  ];
+
+  // Determinar nível de desempenho
+  const getNivelDesempenho = (percent: number) => {
+    if (percent >= 90) return { label: 'Excelente!', color: 'text-success', bg: 'bg-success/10' };
+    if (percent >= 70) return { label: 'Bom', color: 'text-primary', bg: 'bg-primary/10' };
+    if (percent >= 50) return { label: 'Regular', color: 'text-warning', bg: 'bg-warning/10' };
+    return { label: 'Precisa Melhorar', color: 'text-destructive', bg: 'bg-destructive/10' };
+  };
+
+  const desempenho = getNivelDesempenho(porcentagem);
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
@@ -95,7 +134,10 @@ const SimuladoResultado = () => {
           <div className="text-center">
             <Trophy className="h-16 w-16 mx-auto mb-4" />
             <h1 className="mb-2">{resultado.titulo}</h1>
-            <div className="text-6xl font-bold mb-4">{porcentagem.toFixed(1)}%</div>
+            <div className="text-6xl font-bold mb-2">{porcentagem.toFixed(1)}%</div>
+            <div className={`inline-block px-4 py-2 rounded-full ${desempenho.bg} mb-4`}>
+              <span className={`font-semibold ${desempenho.color}`}>{desempenho.label}</span>
+            </div>
             <p className="text-white/80 text-lg">
               Você acertou {acertos} de {resultado.total_questoes} questões
             </p>
@@ -142,6 +184,73 @@ const SimuladoResultado = () => {
             </div>
           </Card>
         </div>
+
+        {/* Gráficos de Desempenho */}
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+          {/* Gráfico de Pizza */}
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <PieChart className="h-5 w-5 text-primary" />
+              <h3 className="text-lg font-semibold">Distribuição de Respostas</h3>
+            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <RechartsP>
+                <Pie
+                  data={dadosPizza}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {dadosPizza.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </RechartsP>
+            </ResponsiveContainer>
+          </Card>
+
+          {/* Gráfico de Barras por Disciplina */}
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              <h3 className="text-lg font-semibold">Desempenho por Disciplina</h3>
+            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={estatisticasDisciplinas}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="disciplina" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="acertos" fill="hsl(var(--success))" name="Acertos" />
+                <Bar dataKey="erros" fill="hsl(var(--destructive))" name="Erros" />
+              </BarChart>
+            </ResponsiveContainer>
+          </Card>
+        </div>
+
+        {/* Análise por Disciplina */}
+        <Card className="p-6 mb-8">
+          <h2 className="mb-6">Análise por Disciplina</h2>
+          <div className="space-y-4">
+            {estatisticasDisciplinas.map((disc, idx) => (
+              <div key={idx} className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold">{disc.disciplina}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {disc.acertos}/{disc.acertos + disc.erros} questões ({disc.percentual}%)
+                  </span>
+                </div>
+                <Progress value={disc.percentual} className="h-2" />
+              </div>
+            ))}
+          </div>
+        </Card>
 
         {/* Revisão de Questões */}
         <Card className="p-6 mb-8">
@@ -228,11 +337,11 @@ const SimuladoResultado = () => {
         </Card>
 
         {/* Ações */}
-        <div className="flex gap-4 justify-center">
-          <Button variant="outline" onClick={() => navigate('/simulados')}>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button variant="outline" onClick={() => navigate('/simulados')} className="w-full sm:w-auto">
             Voltar aos Simulados
           </Button>
-          <Button onClick={() => navigate('/dashboard')}>
+          <Button onClick={() => navigate('/dashboard')} className="w-full sm:w-auto">
             <ChevronRight className="h-4 w-4 mr-2" />
             Ir para Dashboard
           </Button>
