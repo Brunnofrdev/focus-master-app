@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useRevisao, Revisao } from '@/hooks/useRevisao';
 import { Navigation } from '@/components/Navigation';
+import { AIHelpButton, AIExplainModal } from '@/components/ai';
 import { 
   Brain, 
   CheckCircle2, 
@@ -20,7 +21,8 @@ import {
   ThumbsDown,
   SkipForward,
   Lightbulb,
-  BarChart3
+  BarChart3,
+  Sparkles
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -44,6 +46,7 @@ const ReviewPraticar = () => {
   });
   const [confianca, setConfianca] = useState<'facil' | 'medio' | 'dificil' | null>(null);
   const [mostrarAtalhos, setMostrarAtalhos] = useState(false);
+  const [showAIExplain, setShowAIExplain] = useState(false);
 
   useEffect(() => {
     carregarRevisoes();
@@ -370,7 +373,7 @@ const ReviewPraticar = () => {
                     <div className="p-2 rounded-lg bg-primary/10">
                       <Lightbulb className="h-5 w-5 text-primary" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <h4 className="font-semibold mb-2">Explicação</h4>
                       <p className="text-sm leading-relaxed text-muted-foreground">
                         {questaoAtual.questao.explicacao}
@@ -379,6 +382,16 @@ const ReviewPraticar = () => {
                   </div>
                 </div>
               )}
+              
+              {/* Botão IA */}
+              <Button
+                variant="outline"
+                onClick={() => setShowAIExplain(true)}
+                className="w-full gap-2 border-primary/30 text-primary hover:bg-primary/10"
+              >
+                <Sparkles className="w-4 h-4" />
+                Explicação detalhada com IA
+              </Button>
             </div>
           )}
         </Card>
@@ -429,6 +442,26 @@ const ReviewPraticar = () => {
           </p>
         )}
       </div>
+      
+      {/* AI Explain Modal */}
+      {revisoes.length > 0 && (
+        <AIExplainModal
+          open={showAIExplain}
+          onOpenChange={setShowAIExplain}
+          question={revisoes[currentIndex]?.questao?.enunciado || ''}
+          answer={revisoes[currentIndex]?.questao?.gabarito || ''}
+          alternatives={{
+            a: revisoes[currentIndex]?.questao?.alternativa_a || '',
+            b: revisoes[currentIndex]?.questao?.alternativa_b || '',
+            c: revisoes[currentIndex]?.questao?.alternativa_c || '',
+            d: revisoes[currentIndex]?.questao?.alternativa_d || '',
+            e: revisoes[currentIndex]?.questao?.alternativa_e || ''
+          }}
+        />
+      )}
+      
+      {/* FAB AI */}
+      <AIHelpButton variant="fab" context="Revisão de questões para concursos" />
     </div>
   );
 };

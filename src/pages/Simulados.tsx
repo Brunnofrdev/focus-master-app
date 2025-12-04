@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Navigation } from "@/components/Navigation";
+import { AIHelpButton } from "@/components/ai";
 import { 
   Trophy, 
   Clock, 
   Target, 
   PlayCircle,
-  Plus
+  Plus,
+  Sparkles
 } from "lucide-react";
 import { useSimulados } from "@/hooks/useSimulados";
 import { useNavigate } from "react-router-dom";
@@ -287,6 +289,9 @@ const Simulados = () => {
           )}
         </div>
       </div>
+      
+      {/* FAB AI */}
+      <AIHelpButton variant="fab" context="Simulados para concursos públicos" />
     </div>
   );
 };
