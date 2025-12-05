@@ -22,6 +22,8 @@ import Profile from "./pages/Profile";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
+import Flashcards from "./pages/Flashcards";
+import Library from "./pages/Library";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +62,8 @@ const AppContent = () => {
           <Route path="/simulados/:id/resultado" element={<ProtectedRoute><SimuladoResultado /></ProtectedRoute>} />
           <Route path="/review" element={<ProtectedRoute><Review /></ProtectedRoute>} />
           <Route path="/review/praticar" element={<ProtectedRoute><ReviewPraticar /></ProtectedRoute>} />
+          <Route path="/flashcards" element={<ProtectedRoute><Flashcards /></ProtectedRoute>} />
+          <Route path="/library" element={<ProtectedRoute><Library /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />

@@ -10,10 +10,13 @@ import {
   TrendingUp,
   Calendar,
   Brain,
-  BarChart3
+  BarChart3,
+  Sparkles,
+  Library
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
+import { AICoachWidget } from "@/components/coach/AICoachWidget";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -29,6 +32,7 @@ const Dashboard = () => {
     simuladosDone: 0,
     nextReviewDate: "Hoje",
     reviewQuestionsCount: 0,
+    flashcardsPendentes: 0,
     daysUntilExam: 0
   });
 
@@ -107,6 +111,13 @@ const Dashboard = () => {
 
       const revisoesPendentes = revisoes?.length || 0;
 
+      // Flashcards pendentes
+      const { count: flashcardsPendentes } = await supabase
+        .from('flashcards')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .lte('proxima_revisao', inicioDia);
+
       // Dias até a prova (do perfil)
       const { data: profile } = await supabase
         .from('profiles')
@@ -134,7 +145,7 @@ const Dashboard = () => {
         return {
           subject: a.disciplinas?.nome || 'Estudo Geral',
           hours: (a.duracao_minutos / 60).toFixed(1),
-          accuracy: 0, // Placeholder - poderia calcular baseado em questões
+          accuracy: 0,
           date: dataTexto
         };
       }) || [];
@@ -148,6 +159,7 @@ const Dashboard = () => {
         simuladosDone: simuladosConcluidos,
         nextReviewDate: "Hoje",
         reviewQuestionsCount: revisoesPendentes,
+        flashcardsPendentes: flashcardsPendentes || 0,
         daysUntilExam: diasProva
       });
 
@@ -229,7 +241,7 @@ const Dashboard = () => {
               <Target className="h-5 w-5 text-primary" />
               Ações Rápidas
             </h3>
-            <div className="grid grid-cols-2 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
               <Button variant="outline" size="lg" className="h-auto py-4 md:py-6 flex-col gap-2" asChild>
                 <Link to="/planner">
                   <BookOpen className="h-6 md:h-8 w-6 md:w-8 text-primary" />
@@ -251,6 +263,22 @@ const Dashboard = () => {
                   <Brain className="h-6 md:h-8 w-6 md:w-8 text-accent" />
                   <span className="text-sm md:text-base font-semibold">Revisar</span>
                   <span className="text-xs text-muted-foreground hidden md:block">{stats.reviewQuestionsCount} questões</span>
+                </Link>
+              </Button>
+              
+              <Button variant="outline" size="lg" className="h-auto py-4 md:py-6 flex-col gap-2" asChild>
+                <Link to="/flashcards">
+                  <Sparkles className="h-6 md:h-8 w-6 md:w-8 text-warning" />
+                  <span className="text-sm md:text-base font-semibold">Flashcards</span>
+                  <span className="text-xs text-muted-foreground hidden md:block">{stats.flashcardsPendentes} pendentes</span>
+                </Link>
+              </Button>
+
+              <Button variant="outline" size="lg" className="h-auto py-4 md:py-6 flex-col gap-2" asChild>
+                <Link to="/library">
+                  <Library className="h-6 md:h-8 w-6 md:w-8 text-primary" />
+                  <span className="text-sm md:text-base font-semibold">Biblioteca</span>
+                  <span className="text-xs text-muted-foreground hidden md:block">Resumos e materiais</span>
                 </Link>
               </Button>
               
@@ -293,39 +321,44 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Recent Activity */}
-        {recentActivity.length > 0 && (
-          <Card className="p-4 md:p-6">
-            <h3 className="mb-4 md:mb-6 flex items-center gap-2 text-lg md:text-xl">
-              <BookOpen className="h-5 w-5 text-primary" />
-              Atividade Recente
-            </h3>
-            <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
-                <div 
-                  key={index}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-smooth"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-lg gradient-primary flex items-center justify-center flex-shrink-0">
-                      <BookOpen className="h-6 w-6 text-white" />
+        {/* AI Coach Section */}
+        <div className="grid lg:grid-cols-2 gap-6 md:gap-8 mb-8">
+          <AICoachWidget />
+
+          {/* Recent Activity */}
+          {recentActivity.length > 0 && (
+            <Card className="p-4 md:p-6">
+              <h3 className="mb-4 md:mb-6 flex items-center gap-2 text-lg md:text-xl">
+                <BookOpen className="h-5 w-5 text-primary" />
+                Atividade Recente
+              </h3>
+              <div className="space-y-4">
+                {recentActivity.map((activity, index) => (
+                  <div 
+                    key={index}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-smooth"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 rounded-lg gradient-primary flex items-center justify-center flex-shrink-0">
+                        <BookOpen className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <div className="font-semibold">{activity.subject}</div>
+                        <div className="text-sm text-muted-foreground">{activity.date}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-semibold">{activity.subject}</div>
-                      <div className="text-sm text-muted-foreground">{activity.date}</div>
+                    <div className="flex gap-6 sm:gap-8 items-center">
+                      <div className="text-left sm:text-right">
+                        <div className="text-sm text-muted-foreground">Tempo</div>
+                        <div className="font-semibold">{activity.hours}h</div>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex gap-6 sm:gap-8 items-center">
-                    <div className="text-left sm:text-right">
-                      <div className="text-sm text-muted-foreground">Tempo</div>
-                      <div className="font-semibold">{activity.hours}h</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
+                ))}
+              </div>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );
