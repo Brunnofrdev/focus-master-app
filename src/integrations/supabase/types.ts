@@ -44,6 +44,80 @@ export type Database = {
         }
         Relationships: []
       }
+      content_library: {
+        Row: {
+          conteudo: string
+          created_at: string | null
+          disciplina_id: string | null
+          id: string
+          is_public: boolean | null
+          tags: string[] | null
+          tipo: string
+          titulo: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          conteudo: string
+          created_at?: string | null
+          disciplina_id?: string | null
+          id?: string
+          is_public?: boolean | null
+          tags?: string[] | null
+          tipo?: string
+          titulo: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          conteudo?: string
+          created_at?: string | null
+          disciplina_id?: string | null
+          id?: string
+          is_public?: boolean | null
+          tags?: string[] | null
+          tipo?: string
+          titulo?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_library_disciplina_id_fkey"
+            columns: ["disciplina_id"]
+            isOneToOne: false
+            referencedRelation: "disciplinas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_missions: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          data: string
+          id: string
+          missoes: Json
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          data?: string
+          id?: string
+          missoes?: Json
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          data?: string
+          id?: string
+          missoes?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       disciplinas: {
         Row: {
           created_at: string | null
@@ -65,6 +139,92 @@ export type Database = {
           id?: string
           nome?: string
           peso?: number | null
+        }
+        Relationships: []
+      }
+      flashcards: {
+        Row: {
+          acertos_consecutivos: number | null
+          created_at: string | null
+          facilidade: number | null
+          frente: string
+          id: string
+          intervalo_dias: number | null
+          origem: string | null
+          proxima_revisao: string
+          questao_id: string | null
+          updated_at: string | null
+          user_id: string
+          verso: string
+        }
+        Insert: {
+          acertos_consecutivos?: number | null
+          created_at?: string | null
+          facilidade?: number | null
+          frente: string
+          id?: string
+          intervalo_dias?: number | null
+          origem?: string | null
+          proxima_revisao?: string
+          questao_id?: string | null
+          updated_at?: string | null
+          user_id: string
+          verso: string
+        }
+        Update: {
+          acertos_consecutivos?: number | null
+          created_at?: string | null
+          facilidade?: number | null
+          frente?: string
+          id?: string
+          intervalo_dias?: number | null
+          origem?: string | null
+          proxima_revisao?: string
+          questao_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+          verso?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcards_questao_id_fkey"
+            columns: ["questao_id"]
+            isOneToOne: false
+            referencedRelation: "questoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pdf_uploads: {
+        Row: {
+          created_at: string | null
+          flashcards_gerados: number | null
+          id: string
+          nome_arquivo: string
+          processado: boolean | null
+          questoes_geradas: number | null
+          resumo: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          flashcards_gerados?: number | null
+          id?: string
+          nome_arquivo: string
+          processado?: boolean | null
+          questoes_geradas?: number | null
+          resumo?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          flashcards_gerados?: number | null
+          id?: string
+          nome_arquivo?: string
+          processado?: boolean | null
+          questoes_geradas?: number | null
+          resumo?: string | null
+          user_id?: string
         }
         Relationships: []
       }

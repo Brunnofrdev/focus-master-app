@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Target, LayoutDashboard, BookOpen, Brain, BarChart3, Trophy, User, LogOut, Moon, Sun } from "lucide-react";
+import { Target, LayoutDashboard, BookOpen, Brain, BarChart3, Trophy, User, LogOut, Moon, Sun, Sparkles, Library } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -16,6 +16,8 @@ export const Navigation = () => {
     { href: "/planner", icon: BookOpen, label: "Planner" },
     { href: "/simulados", icon: Trophy, label: "Simulados" },
     { href: "/review", icon: Brain, label: "Revisão" },
+    { href: "/flashcards", icon: Sparkles, label: "Flashcards" },
+    { href: "/library", icon: Library, label: "Biblioteca" },
     { href: "/statistics", icon: BarChart3, label: "Estatísticas" }
   ];
 
