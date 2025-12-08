@@ -49,7 +49,6 @@ interface QuestaoSimulado {
     disciplinas?: { nome: string } | null;
   } | null;
 }
-}
 
 const SimuladoExec = () => {
   const { id } = useParams();
@@ -389,8 +388,8 @@ const SimuladoExec = () => {
 
           <div className="space-y-3">
             {['a', 'b', 'c', 'd', 'e'].map((letra) => {
-              const alternativaKey = `alternativa_${letra}` as keyof typeof questaoAtual.questoes;
-              const alternativa = questaoAtual.questoes?.[alternativaKey];
+              const alternativaKey = `alternativa_${letra}` as 'alternativa_a' | 'alternativa_b' | 'alternativa_c' | 'alternativa_d' | 'alternativa_e';
+              const alternativa = questaoAtual.questoes?.[alternativaKey] as string | null | undefined;
               
               if (!alternativa) return null;
 

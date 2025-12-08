@@ -435,8 +435,8 @@ const SimuladoResultado = () => {
                           
                           <div className="space-y-2 mb-4">
                             {['a', 'b', 'c', 'd', 'e'].map((letra) => {
-                              const alternativaKey = `alternativa_${letra}` as keyof typeof q.questoes;
-                              const alternativa = q.questoes?.[alternativaKey];
+                              const alternativaKey = `alternativa_${letra}` as 'alternativa_a' | 'alternativa_b' | 'alternativa_c' | 'alternativa_d' | 'alternativa_e';
+                              const alternativa = q.questoes?.[alternativaKey] as string | null | undefined;
                               if (!alternativa) return null;
 
                               const isGabarito = letra.toUpperCase() === q.questoes?.gabarito;
