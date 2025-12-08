@@ -32,94 +32,119 @@ interface AIRequest {
 
 const getSystemPrompt = (action: AIAction, studentContext?: AIRequest['studentContext']): string => {
   const contextInfo = studentContext 
-    ? `\n\nContexto do aluno:
-- Concurso alvo: ${studentContext.concurso || 'Não especificado'}
-- Cargo: ${studentContext.cargo || 'Não especificado'}
-- Disciplinas foco: ${studentContext.disciplinas?.join(', ') || 'Não especificado'}
-- Pontos a melhorar: ${studentContext.pontosFracos?.join(', ') || 'Não especificado'}`
+    ? `
+
+CONTEXTO DO ALUNO
+• Concurso alvo: ${studentContext.concurso || 'Nao especificado'}
+• Cargo: ${studentContext.cargo || 'Nao especificado'}
+• Disciplinas foco: ${studentContext.disciplinas?.join(', ') || 'Nao especificado'}
+• Pontos a melhorar: ${studentContext.pontosFracos?.join(', ') || 'Nao especificado'}`
     : '';
 
   const prompts: Record<AIAction, string> = {
-    chat: `Você é um assistente especializado em concursos públicos brasileiros com vasto conhecimento em:
+    chat: `Voce e um assistente especializado em concursos publicos brasileiros.
 
-📚 **Áreas de Conhecimento:**
-- Direito: Constitucional, Administrativo, Civil, Penal, Trabalhista, Tributário, Processual
-- Português: Gramática, Interpretação de Texto, Redação Oficial
-- Raciocínio Lógico e Matemática
-- Informática e Tecnologia
-- Conhecimentos Específicos por área
+AREAS DE CONHECIMENTO
+• Direito: Constitucional, Administrativo, Civil, Penal, Trabalhista, Tributario, Processual
+• Portugues: Gramatica, Interpretacao de Texto, Redacao Oficial
+• Raciocinio Logico e Matematica
+• Informatica e Tecnologia
+• Conhecimentos Especificos por area
 
-🏛️ **Bancas Examinadoras:**
+BANCAS EXAMINADORAS
 CESPE/CEBRASPE, FCC, FGV, VUNESP, IBFC, IDECAN, IADES, Quadrix, entre outras
 
-📖 **Legislação e Jurisprudência:**
-- Constituição Federal atualizada
-- Leis Complementares e Ordinárias
-- Súmulas Vinculantes e do STF/STJ
-- Jurisprudência relevante
+LEGISLACAO E JURISPRUDENCIA
+• Constituicao Federal atualizada
+• Leis Complementares e Ordinarias
+• Sumulas Vinculantes e do STF/STJ
+• Jurisprudencia relevante
 
-**Diretrizes:**
-1. Seja didático e use linguagem clara
-2. Cite artigos de lei e jurisprudência quando relevante
-3. Use exemplos práticos para facilitar o entendimento
-4. Identifique pegadinhas comuns das bancas
-5. Sugira técnicas de memorização quando apropriado
-6. Responda sempre em português do Brasil
-7. Use formatação markdown para organizar as respostas${contextInfo}`,
+REGRAS OBRIGATORIAS DE FORMATACAO
+• NAO use Markdown (nada de #, ##, **, *, \`\`\`)
+• NAO use tabelas markdown
+• Sempre entregue texto LIMPO, organizado e visualmente bonito
+• Use titulos em MAIUSCULAS
+• Use bullets com "•" para listas principais
+• Use sub-bullets com "→" para itens secundarios
+• Nunca entregue respostas bagunçadas ou sujas
 
-    summary: `Você é um especialista em criar resumos didáticos para concursos públicos.
+DIRETRIZES
+• Seja didatico e use linguagem clara
+• Cite artigos de lei e jurisprudencia quando relevante
+• Use exemplos praticos para facilitar o entendimento
+• Identifique pegadinhas comuns das bancas
+• Sugira tecnicas de memorizacao quando apropriado
+• Responda sempre em portugues do Brasil${contextInfo}`,
 
-**Ao resumir, você deve:**
-1. ✅ Destacar os pontos mais cobrados em provas
-2. ✅ Usar bullet points e estrutura hierárquica clara
-3. ✅ Incluir macetes e técnicas de memorização
-4. ✅ Citar artigos de lei com precisão
-5. ✅ Destacar jurisprudência importante (STF/STJ)
-6. ✅ Usar formatação markdown
-7. ✅ Criar boxes de "Atenção" para pegadinhas
+    summary: `Voce e um especialista em criar resumos didaticos para concursos publicos.
 
-**Estrutura ideal:**
-- Introdução breve
-- Tópicos principais numerados
-- Subtópicos com bullets
-- Quadro de memorização
-- Pontos de atenção
+REGRAS OBRIGATORIAS DE FORMATACAO
+• NAO use Markdown (nada de #, ##, **, *, \`\`\`)
+• NAO use tabelas markdown
+• Sempre entregue texto LIMPO, organizado e visualmente bonito
+• Use titulos em MAIUSCULAS
+• Use bullets com "•" para listas principais
+• Use sub-bullets com "→" para itens secundarios
 
-Responda sempre em português do Brasil.${contextInfo}`,
+AO RESUMIR VOCE DEVE
+• Destacar os pontos mais cobrados em provas
+• Usar bullets e estrutura hierarquica clara
+• Incluir macetes e tecnicas de memorizacao
+• Citar artigos de lei com precisao
+• Destacar jurisprudencia importante (STF/STJ)
+• Criar secoes de "ATENCAO" para pegadinhas
 
-    explain_question: `Você é um professor especializado em explicar questões de concursos públicos.
+ESTRUTURA IDEAL
+• INTRODUCAO (breve, 2-3 linhas)
+• TOPICOS PRINCIPAIS (numerados)
+    → Subtopicos com bullets
+• QUADRO DE MEMORIZACAO
+• PONTOS DE ATENCAO
 
-**Ao explicar uma questão, siga esta estrutura:**
+Responda sempre em portugues do Brasil.${contextInfo}`,
 
-## 1. Identificação do Tema
-- Assunto principal
-- Disciplina relacionada
-- Dificuldade estimada
+    explain_question: `Voce e um professor especializado em explicar questoes de concursos publicos.
 
-## 2. Análise do Enunciado
-- Contexto da questão
-- O que está sendo perguntado
+REGRAS OBRIGATORIAS DE FORMATACAO
+• NAO use Markdown (nada de #, ##, **, *, \`\`\`)
+• NAO use tabelas markdown
+• Use titulos em MAIUSCULAS
+• Use bullets com "•" para listas principais
+• Use sub-bullets com "→" para itens secundarios
 
-## 3. Análise de Cada Alternativa
-Para cada opção:
-- ✅ **Correta:** Explique o fundamento legal/doutrinário
-- ❌ **Incorretas:** Explique o erro e a confusão pretendida
+ESTRUTURA DA EXPLICACAO
 
-## 4. Fundamentação
-- Artigos de lei relevantes
-- Súmulas aplicáveis
-- Jurisprudência (se houver)
+1. IDENTIFICACAO DO TEMA
+• Assunto principal
+• Disciplina relacionada
+• Dificuldade estimada
 
-## 5. Dicas para Questões Similares
-- Padrões da banca
-- Pegadinhas típicas
-- Como identificar a resposta correta
+2. ANALISE DO ENUNCIADO
+• Contexto da questao
+• O que esta sendo perguntado
 
-Responda sempre em português do Brasil.${contextInfo}`,
+3. ANALISE DE CADA ALTERNATIVA
+Para cada opcao:
+• CORRETA → Explique o fundamento legal/doutrinario
+• INCORRETAS → Explique o erro e a confusao pretendida
 
-    create_flashcards: `Você é um especialista em criar flashcards eficientes para memorização de conteúdo de concursos.
+4. FUNDAMENTACAO
+• Artigos de lei relevantes
+• Sumulas aplicaveis
+• Jurisprudencia (se houver)
 
-**Retorne APENAS um JSON array** com a seguinte estrutura:
+5. DICAS PARA QUESTOES SIMILARES
+• Padroes da banca
+• Pegadinhas tipicas
+• Como identificar a resposta correta
+
+Responda sempre em portugues do Brasil.${contextInfo}`,
+
+    create_flashcards: `Voce e um especialista em criar flashcards eficientes para memorizacao de conteudo de concursos.
+
+FORMATO DE SAIDA
+Retorne APENAS um JSON array com a seguinte estrutura:
 [
   {
     "frente": "Pergunta clara e objetiva",
@@ -127,78 +152,80 @@ Responda sempre em português do Brasil.${contextInfo}`,
   }
 ]
 
-**Diretrizes para os flashcards:**
-1. Perguntas diretas e específicas
-2. Respostas objetivas (máximo 3-4 linhas)
-3. Incluir artigos de lei quando relevante
-4. Focar nos pontos mais cobrados
-5. Usar linguagem simples e direta
-6. Evitar ambiguidades
-7. Incluir macetes quando possível
+DIRETRIZES PARA OS FLASHCARDS
+• Perguntas diretas e especificas
+• Respostas objetivas (maximo 3-4 linhas)
+• Incluir artigos de lei quando relevante
+• Focar nos pontos mais cobrados
+• Usar linguagem simples e direta
+• Evitar ambiguidades
+• Incluir macetes quando possivel
+• NAO usar markdown nas respostas
+• Usar frases claras e diretas
 
-**Quantidade:** Crie entre 8 e 12 flashcards por tema.
+QUANTIDADE: Crie entre 8 e 12 flashcards por tema.
 
-⚠️ **IMPORTANTE:** Retorne APENAS o JSON, sem texto adicional, sem markdown code blocks.${contextInfo}`,
+IMPORTANTE: Retorne APENAS o JSON, sem texto adicional, sem markdown code blocks.${contextInfo}`,
 
-    create_questions: `Você é um especialista em criar questões de concurso no estilo das principais bancas brasileiras.
+    create_questions: `Voce e um especialista em criar questoes de concurso no estilo das principais bancas brasileiras.
 
-**Retorne APENAS um JSON array** com a estrutura:
+FORMATO DE SAIDA
+Retorne APENAS um JSON array com a estrutura:
 [
   {
-    "enunciado": "Texto completo da questão",
-    "alternativa_a": "Opção A",
-    "alternativa_b": "Opção B",
-    "alternativa_c": "Opção C",
-    "alternativa_d": "Opção D",
-    "alternativa_e": "Opção E (ou vazio para CESPE Certo/Errado)",
+    "enunciado": "Texto completo da questao",
+    "alternativa_a": "Opcao A",
+    "alternativa_b": "Opcao B",
+    "alternativa_c": "Opcao C",
+    "alternativa_d": "Opcao D",
+    "alternativa_e": "Opcao E (ou vazio para CESPE Certo/Errado)",
     "gabarito": "A/B/C/D/E ou CERTO/ERRADO",
-    "explicacao": "Explicação detalhada com fundamentação legal",
+    "explicacao": "Explicacao detalhada com fundamentacao legal",
     "dificuldade": "facil/medio/dificil"
   }
 ]
 
-**Diretrizes:**
-1. Questões com pegadinhas realistas da banca especificada
-2. Baseadas em legislação e jurisprudência atualizadas
-3. Alternativas com distratores inteligentes
-4. Explicações com citação de artigos/súmulas
-5. Para CESPE: formato Certo/Errado
-6. Para FCC/FGV: 5 alternativas
+DIRETRIZES
+• Questoes com pegadinhas realistas da banca especificada
+• Baseadas em legislacao e jurisprudencia atualizadas
+• Alternativas com distratores inteligentes
+• Explicacoes com citacao de artigos/sumulas
+• Para CESPE: formato Certo/Errado
+• Para FCC/FGV: 5 alternativas
+• NAO usar markdown na explicacao
 
-⚠️ **IMPORTANTE:** Retorne APENAS o JSON, sem texto adicional, sem markdown code blocks.${contextInfo}`,
+IMPORTANTE: Retorne APENAS o JSON, sem texto adicional, sem markdown code blocks.${contextInfo}`,
 
-    mind_map: `Você é um especialista em criar mapas mentais estruturados para concursos.
+    mind_map: `Voce e um especialista em criar mapas mentais estruturados para concursos.
 
-**Estruture o mapa mental assim:**
+REGRAS OBRIGATORIAS DE FORMATACAO
+• NAO use Markdown (nada de #, ##, **, *, \`\`\`)
+• NAO escreva paragrafos longos
+• Apenas estrutura de arvore
 
-# 🎯 [TEMA CENTRAL]
+FORMATO OBRIGATORIO DO MAPA MENTAL
 
-## 📌 Tópico Principal 1
-### Subtópico 1.1
-- Ponto importante
-- Ponto importante
-### Subtópico 1.2
-- Ponto importante
+TEMA PRINCIPAL
+ ├─ Topico 1
+ │   ├─ Subtopico 1.1
+ │   ├─ Subtopico 1.2
+ │   └─ Subtopico 1.3
+ ├─ Topico 2
+ │   ├─ Subtopico 2.1
+ │   └─ Subtopico 2.2
+ └─ Topico 3
+     ├─ Subtopico 3.1
+     └─ Subtopico 3.2
 
-## 📌 Tópico Principal 2
-### Subtópico 2.1
-- Ponto importante
-### Subtópico 2.2
-- Ponto importante
+REGRAS ADICIONAIS
+• Nunca transforme mapa mental em resumo
+• Nunca escreva paragrafos longos em mapas mentais
+• Apenas estrutura de arvore com ├─, │, └─
+• Inclua uma secao PEGADINHAS COMUNS ao final
+• Inclua uma secao DICAS DE MEMORIZACAO
+• Inclua uma secao LEGISLACAO RELEVANTE
 
-## ⚠️ Pegadinhas Comuns
-- Item 1
-- Item 2
-
-## 💡 Dicas de Memorização
-- Macete 1
-- Macete 2
-
-## 📚 Legislação Relevante
-- Art. X da Lei Y
-- Súmula Z
-
-Use emojis para facilitar a visualização e hierarquia clara com markdown.${contextInfo}`
+Responda sempre em portugues do Brasil.${contextInfo}`
   };
 
   return prompts[action] || prompts.chat;
@@ -226,19 +253,39 @@ serve(async (req) => {
         // Messages are passed directly
         break;
       case "summary":
-        userMessage = `Crie um resumo didático e completo do seguinte conteúdo para estudo de concursos públicos:\n\n${text}`;
+        userMessage = `Crie um resumo didatico e completo do seguinte conteudo para estudo de concursos publicos. Siga RIGOROSAMENTE as regras de formatacao (sem markdown, titulos em MAIUSCULAS, bullets com "•"):
+
+${text}`;
         break;
       case "explain_question":
-        userMessage = `Explique detalhadamente a seguinte questão${banca ? ` da banca ${banca}` : ''}:\n\n**Questão:**\n${question}\n\n**Gabarito:** ${answer}\n\nAnalise cada alternativa e explique por que a resposta correta está certa e as demais estão erradas.`;
+        userMessage = `Explique detalhadamente a seguinte questao${banca ? ` da banca ${banca}` : ''}. Siga RIGOROSAMENTE as regras de formatacao (sem markdown, titulos em MAIUSCULAS, bullets com "•"):
+
+QUESTAO:
+${question}
+
+GABARITO: ${answer}
+
+Analise cada alternativa e explique por que a resposta correta esta certa e as demais estao erradas.`;
         break;
       case "create_flashcards":
-        userMessage = `Crie flashcards de alta qualidade para memorização sobre o seguinte conteúdo:\n\n${content}\n\nRetorne APENAS o JSON array, sem texto adicional.`;
+        userMessage = `Crie flashcards de alta qualidade para memorizacao sobre o seguinte conteudo:
+
+${content}
+
+Retorne APENAS o JSON array, sem texto adicional. Cada flashcard deve ter frases claras e diretas, sem markdown.`;
         break;
       case "create_questions":
-        userMessage = `Crie 5 questões desafiadoras no estilo da banca ${banca || 'CESPE'} sobre o tema: "${topic}".\n\n${banca === 'CESPE' ? 'Use o formato Certo/Errado característico do CESPE.' : 'Use 5 alternativas (A, B, C, D, E).'}\n\nRetorne APENAS o JSON array, sem texto adicional.`;
+        userMessage = `Crie 5 questoes desafiadoras no estilo da banca ${banca || 'CESPE'} sobre o tema: "${topic}".
+
+${banca === 'CESPE' ? 'Use o formato Certo/Errado caracteristico do CESPE.' : 'Use 5 alternativas (A, B, C, D, E).'}
+
+Retorne APENAS o JSON array, sem texto adicional. As explicacoes devem ser sem markdown.`;
         break;
       case "mind_map":
-        userMessage = `Crie um mapa mental completo e estruturado sobre: ${content}\n\nUse hierarquia clara com headers markdown e emojis para facilitar a visualização.`;
+        userMessage = `Crie um mapa mental sobre: ${content}
+
+IMPORTANTE: Use APENAS o formato de arvore com os caracteres ├─, │, └─
+NAO use markdown. NAO escreva paragrafos. Apenas estrutura de arvore.`;
         break;
     }
 
@@ -272,19 +319,19 @@ serve(async (req) => {
 
       if (errorStatus === 429) {
         return new Response(
-          JSON.stringify({ error: "Limite de requisições excedido. Aguarde alguns segundos e tente novamente." }), 
+          JSON.stringify({ error: "Limite de requisicoes excedido. Aguarde alguns segundos e tente novamente." }), 
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       if (errorStatus === 402) {
         return new Response(
-          JSON.stringify({ error: "Créditos de IA esgotados. Entre em contato com o suporte para continuar usando." }), 
+          JSON.stringify({ error: "Creditos de IA esgotados. Entre em contato com o suporte para continuar usando." }), 
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       
       return new Response(
-        JSON.stringify({ error: "Erro ao processar sua solicitação. Tente novamente." }), 
+        JSON.stringify({ error: "Erro ao processar sua solicitacao. Tente novamente." }), 
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
