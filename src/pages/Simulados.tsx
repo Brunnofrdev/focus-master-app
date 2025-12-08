@@ -263,12 +263,12 @@ const Simulados = () => {
                 {/* Banca */}
                 <div className="space-y-2">
                   <Label>Banca Examinadora</Label>
-                  <Select value={bancaSelecionada} onValueChange={setBancaSelecionada}>
+                  <Select value={bancaSelecionada || "all"} onValueChange={(val) => setBancaSelecionada(val === "all" ? "" : val)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Todas as bancas" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas as bancas</SelectItem>
+                      <SelectItem value="all">Todas as bancas</SelectItem>
                       {bancas.map((banca) => (
                         <SelectItem key={banca.id} value={banca.id}>
                           {banca.sigla} - {banca.nome} ({banca.totalQuestoes} questoes)
@@ -315,12 +315,12 @@ const Simulados = () => {
                 {/* Dificuldade */}
                 <div className="space-y-2">
                   <Label>Nivel de Dificuldade</Label>
-                  <Select value={dificuldade} onValueChange={setDificuldade}>
+                  <Select value={dificuldade || "all"} onValueChange={(val) => setDificuldade(val === "all" ? "" : val)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Todos os niveis" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos os niveis</SelectItem>
+                      <SelectItem value="all">Todos os niveis</SelectItem>
                       <SelectItem value="facil">Facil</SelectItem>
                       <SelectItem value="medio">Medio</SelectItem>
                       <SelectItem value="dificil">Dificil</SelectItem>
