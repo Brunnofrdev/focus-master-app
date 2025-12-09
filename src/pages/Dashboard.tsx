@@ -17,6 +17,7 @@ import {
 import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { AICoachWidget } from "@/components/coach/AICoachWidget";
+import { AIHelpButton } from "@/components/ai";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -360,6 +361,8 @@ const Dashboard = () => {
           )}
         </div>
       </div>
+      
+      <AIHelpButton variant="fab" context="Ajude-me com meus estudos para concursos. Analise meu progresso e sugira melhorias." />
     </div>
   );
 };
