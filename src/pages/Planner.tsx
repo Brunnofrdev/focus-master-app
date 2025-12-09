@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { sessionSchema } from "@/lib/validations";
+import { AIHelpButton } from "@/components/ai";
 
 const Planner = () => {
   const { minutes, seconds, isRunning, sessoes, toggle, reset } = usePomodoro(25);
@@ -467,6 +468,8 @@ const Planner = () => {
           </div>
         </Card>
       </div>
+      
+      <AIHelpButton variant="fab" context="Ajude-me a planejar meus estudos de forma eficiente. Sugira técnicas de estudo e organização." />
     </div>
   );
 };

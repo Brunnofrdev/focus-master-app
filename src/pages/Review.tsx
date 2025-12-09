@@ -17,6 +17,7 @@ import { ReviewCalendar } from "@/components/review/ReviewCalendar";
 import { ReviewQueue } from "@/components/review/ReviewQueue";
 import { ReviewMethodInfo } from "@/components/review/ReviewMethodInfo";
 import { supabase } from "@/integrations/supabase/client";
+import { AIHelpButton } from "@/components/ai";
 
 const Review = () => {
   const navigate = useNavigate();
@@ -335,6 +336,8 @@ const Review = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      <AIHelpButton variant="fab" context="Ajude-me com a revisão espaçada. Explique como funciona o algoritmo SM-2 e como otimizar meus estudos." />
     </div>
   );
 };

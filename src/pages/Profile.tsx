@@ -26,6 +26,7 @@ import {
   BookOpen,
   CheckCircle2
 } from "lucide-react";
+import { AIHelpButton } from "@/components/ai";
 
 const Profile = () => {
   const { user, signOut } = useAuth();
@@ -770,6 +771,8 @@ const Profile = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      <AIHelpButton variant="fab" context="Ajude-me com meu perfil e organização de estudos para concursos" />
     </div>
   );
 };
